@@ -24,6 +24,7 @@ if __name__ == '__main__':
 def fetch():
     data = request.get_data()
     data2 = data.decode("ascii")
+    print(data2)
     html_content = requests.get(data2).text
     soup = BeautifulSoup(html_content, 'lxml')
     for a in soup.findAll('a', href=True):
@@ -298,7 +299,7 @@ def fetch5():
 def fetch6():
     data = request.json['taburl']
     data2 = request.json['SentNum']
-    data2 = int(data2) - 1
+    data2 = int(data2) -1
     if data2 < 1:
         data2 = 1
     html_content = requests.get(data).text
@@ -312,12 +313,9 @@ def fetch6():
     for points in mytext:
         point = str(points.text)
         text += point
-    new_text = ""
-    for sen in text:
-        new_text = new_text + sen
-
-    text = new_text
-
+    
+    text = text.replace(".",". ")
+    
     model = Summarizer()
     result = model(text, num_sentences=data2)
 
@@ -362,6 +360,11 @@ def fetch7():
 
     myname = ["Abi", "Ağabey", "Amca", "Dayı",
               "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
+
+    myname2 = ["Bakan", "Belediye Başkanı", "Valisi", "Müftüsü", "Kadısı", 
+    "İmamı", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktoru", 
+    "Hekimi", "Avukatı", "Öğretmeni", "Profesörü", "Doçent"]          
+
     namelist = []
     for line in text:  # each sentence
         for a in range(0, len(myname)):
@@ -369,6 +372,16 @@ def fetch7():
             if myvar in line:
                 mystr = re.findall(
                     r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
+
+                for element in mystr:
+                    namelist.append(element)
+            a += 1
+    for line in text:  # each sentence
+        for a in range(0, len(myname2)):
+            myvar = myname2[a]
+            if myvar in line:
+                mystr = re.findall(
+                    r'myvar[a-zçğışöü]*\s[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ', line)
 
                 for element in mystr:
                     namelist.append(element)
@@ -432,3 +445,45 @@ def fetch7():
             'time2': timelist
             }
     return jsonify(jres)
+
+@app.route('/api/fetch8', methods=['POST'])
+def fetch8():
+    data = request.json['taburl']
+    data2 = request.json['SentNum']
+    myword = data2.lower()
+    myword2 = data2.capitalize()
+    myword = " " + myword 
+    myword2 = " " + myword2 
+    html_content = requests.get(data).text
+    soup = BeautifulSoup(html_content, 'lxml')
+
+    for a in soup.findAll('a', href=True):
+        a.decompose()
+    footer_tag = soup.footer
+    footer_tag.decompose()
+    mytext = soup.find_all("p")
+    text = ""
+
+    for points in mytext:
+        point = str(points.text)
+        text += point
+
+    p = text
+    p=p.replace('.', '. ')
+   
+    text = tokenize.sent_tokenize(p)
+    mylist=[]
+
+    term = "<ul>"
+    
+    
+    for i in text:
+        if myword in i:
+            term+="<li>" + i +"</li>"
+        elif myword2 in i:
+            term+="<li>" + i +"</li>"
+    
+    term += "</ul>"
+    jres = {'detail': term}
+    return jsonify(jres)
+     

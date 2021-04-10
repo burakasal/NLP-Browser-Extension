@@ -120,6 +120,8 @@ $(function(){
 					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
 					$("#txtResponse2").text(" ");
 					$("#txtResponse3").text(" ");
+					$("#txtResponse4").text(" ");
+					$("#txtResponse5").text(" ");
         		}
     		});
   		});		
@@ -141,6 +143,27 @@ $(function(){
 					$("#txtResponse5").text(response.loc2).css({ 'color': 'black'});
 					$("#txtResponse6").text(response.time).css({ 'color': 'maroon'});
 					$("#txtResponse7").text(response.time2).css({ 'color': 'black'});
+        		}
+    		});
+  		});		
+	});
+	$("#btnKeyword").click(function(e){
+		SentNum = prompt("Please enter a keyword");
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			let taburl = tabs[0].url;
+			dict2 = {taburl: taburl, SentNum: SentNum}
+    		$.ajax({
+        		url: "http://localhost:5000/api/fetch8",
+        		type: "post",
+        		data: JSON.stringify(dict2),
+        		contentType: "application/json",
+        		success: function (response) {
+					$("#txtResponse").text("");
+					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
+					$("#txtResponse2").text(" ");
+					$("#txtResponse3").text(" ");
+					$("#txtResponse4").text(" ");
+					$("#txtResponse5").text(" ");
         		}
     		});
   		});		

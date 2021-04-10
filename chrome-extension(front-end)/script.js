@@ -10,7 +10,7 @@ function myFunction(){
                 window.location.href="en.html";
           }else if(language == "tr"){
                 window.location.href="tr.html";
-          }
+          }      
         });
       });
 }
