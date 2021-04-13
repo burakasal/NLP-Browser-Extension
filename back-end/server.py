@@ -476,13 +476,13 @@ def fetch8():
 
     term = "<ul>"
     
-    
     for i in text:
         if myword in i:
             term+="<li>" + i +"</li>"
         elif myword2 in i:
             term+="<li>" + i +"</li>"
-    
+    if term == "<ul>":
+        term = "There is no such word."
     term += "</ul>"
     jres = {'detail': term}
     return jsonify(jres)
