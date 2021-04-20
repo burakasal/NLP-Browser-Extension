@@ -461,8 +461,7 @@ def fetch8():
     else:    
         myword = data2
         myword2 = data2
-    myword = " " + myword + " "
-    myword2 = " " + myword2 + " "
+    
     html_content = requests.get(data).text
     soup = BeautifulSoup(html_content, 'lxml')
 
@@ -481,15 +480,22 @@ def fetch8():
     p=p.replace('.', '. ')
    
     text = tokenize.sent_tokenize(p)
+    
     mylist=[]
 
     term = "<ul>"
     
     for i in text:
-        if myword in i:
-            term+="<li>" + i +"</li>"
-        elif myword2 in i:
-            term+="<li>" + i +"</li>"
+        b = i
+        i = re.sub("[^a-zA-Z0-9\s]+", " ",i)
+        i = i.split()
+        for w in i:
+            if w==myword:
+                term+="<li>" + b +"</li>"     
+            elif w==myword2:
+                term+="<li>" + b +"</li>"
+           
+
     if term == "<ul>":
         term = "There is no such word."
     
@@ -517,11 +523,11 @@ def fetch9():
             response = requests.get(i)
             img = Image.open(io.BytesIO(response.content))
             a = pytesseract.image_to_string(img)
-            #print(a)
             if a.strip():
                 term+="<li>"+ a+ "</li>"
         except:
             continue       
+   
     if term == "<ul>":
         term = "There is no image."
         jres = {"detail2": term}
