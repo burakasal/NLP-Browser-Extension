@@ -12,20 +12,18 @@
         margin: 0 auto;
         float: left;
         background-color:#800000;
-        padding: 12px
-      }
-      .wrapper2 {
-        text-align: center;
         padding: 12px;
       }
       .output {
         background-color: #f0f8ff;
         padding: 8px;
+        margin-bottom :auto;
       }
       .buttons {
         background-color: #ffe4e1;
         border-radius: 6px;
-        border: 3px solid #000000
+        border: 3.5px solid #000000;
+        border-width: 3.9px;
       }
       .buttons:hover {
         background-color: #555555;
@@ -36,7 +34,12 @@
         }
       #txtResponse, #txtResponse2, #txtResponse4{
         text-align: center;
-      }  
+      } 
+      .divider{
+        width:5px;
+        height:auto;
+        display:inline-block;
+      } 
 
     </style>
   <script src="res/js/jquery-3.5.1.js"></script>
@@ -44,25 +47,30 @@
 <body>
   <div class="wrapper">
     <button id="btnTerm" class="buttons">Term Weighting</button>
-  </div>
-  <div class="wrapper">
+    <div class="divider"></div>
     <button id="btnNer" class="buttons">NER</button>
-  </div>
-  <div class="wrapper">
-    <button id="btnHeap" class="buttons">Heap's Law</button> </div>
-  <div class="wrapper">
-    <button id="btnCon" class="buttons">Content</button> </div>   
-  <div class="wrapper2">
+    <div class="divider"></div>
+    <button id="btnRegex" class="buttons">Regex</button> 
+    <div class="divider"></div>
+    <button id="btnCon" class="buttons">Content</button> 
+    <div class="divider"></div>
     <button id="btnWord" class="buttons">Wordcloud</button>
-    <button id="btnSum" class="buttons">Summary</button>  
-    <button id="btnKeyword" class="buttons">Keyword</button> 
+    <div class="divider"></div>
+    <button id="btnSum" class="buttons">Summary</button> 
+    <div class="divider"></div>
+    <button id="btnOCR" class="buttons">Image</button> 
+    <div class="divider"></div>
+    <button id="btnKeyword" class="buttons">Keyword</button>
+    <input type="checkbox" name="caseSens" value="1" id="caseSens" checked="checked">
+    <label for="caseSens" style="color: #f0f8ff;">Case sensitive</label><br>
+    
   </div>   
 
   <div class="output">
     <h4 id="txtResponse">Page Language is <span style="color: #800000">English.</span></h4>
     <h4 id="txtResponse1"></h4>
     <h4 id="txtResponse2"></h4>
-    <h4 id="txtResponse3"></h4>
+    <h4 id="txtResponse3"></h4>  
     <h4 id="txtResponse4"></h4>
     <h4 id="txtResponse5"></h4>
   </div>

@@ -13,6 +13,9 @@ import collections
 from wordcloud import WordCloud
 from summarizer import Summarizer
 from nltk import tokenize
+import pytesseract
+import io
+from PIL import Image
 
 app = flask.Flask(__name__)
 if __name__ == '__main__':
@@ -146,48 +149,39 @@ def fetch2():
 
 @app.route('/api/fetch3', methods=['POST'])
 def fetch3():
-    data = request.get_data()
-    data2 = data.decode("ascii")
-    html_content = requests.get(data2).text
+    data = request.json['taburl']
+    data2 = request.json['SentRegex']
+    data2 = str(data2)
+    html_content = requests.get(data).text
     soup = BeautifulSoup(html_content, 'lxml')
     for a in soup.findAll('a', href=True):
         a.decompose()
     footer_tag = soup.footer
     footer_tag.decompose()
     mytext = soup.find_all("p")
-
     text = ""
     for points in mytext:
         point = str(points.text)
         text += point
-    new_text = ""
-    for sen in text:
-        new_text = new_text + sen
+    
+    text = text.replace(".",". ")
 
-    text = new_text
-    text = text.lower()
-    text = re.sub(r'[^\w\s]', '', text)
+    data2= r'' + data2 
+    result=re.findall(data2, text)
 
-    words = nltk.wordpunct_tokenize(text)
+    if len(result)==0:
+        mysent="Expression is not found"
+        result.append(mysent)
+        jres = {'detail2': result}
+        return jsonify(jres)
 
-    i = 0
-    mydict = set()
-
-    term = []
-    voc_size = []
-    for word in words:
-        i = i + 1
-        mydict.add(word)  # words exist only once
-
-        term.append(i)
-        voc_size.append(len(mydict))
-
-    plt.scatter(term, voc_size)
-    plt.xlabel('term occurrence')
-    plt.ylabel('vocabulary size')
-
-    jres = {'detail': plt.show()}
-
+    term = "<ul>"
+    
+    for i in result:
+        term+="<li>" + i +"</li>"
+    
+    term += "</ul>"
+    jres = {'detail': term}
     return jsonify(jres)
 
 
@@ -344,15 +338,15 @@ def fetch7():
     p = text
     text = tokenize.sent_tokenize(p)
 
-    myorg = ["Üniversitesi", "Koleji", "Okulu", "Kurumu", "Bankası", "Şirketi", "İştirakı", "Vakfı",
-             "Federasyonu", "Kulübü", "Takımı", "Meclisi",  "Derneği", "Holdingi", "Firması", "Bakanlığı", "Hastanesi"]
+    myorg = ["Üniversitesi", "Koleji", "Okulu", "Kurumu", "Bankası", "Şirketi", "İştirakı", "Vakfı", "Federasyonu", "Kulübü", "Takımı", "Meclisi",  "Derneği", "Holdingi", 
+            "Firması", "Bakanlığı", "Hastanesi", "Devleti", "Partisi", "Başkanlığı", "Komiserliği", "Belediyesi", "Belediyeleri", "Tiyatrosu", "İmparatorluğu", "Birliği", 
+            "Danışmanlığı", "Müdürlüğü"]
     orglist = []
     for line in text:  # each sentence
         for a in range(0, len(myorg)):
             myvar = myorg[a]
             if myvar in line:
-                mystr = re.findall(
-                    r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
+                mystr = re.findall(r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
 
                 for element in mystr:
                     orglist.append(element)
@@ -361,17 +355,16 @@ def fetch7():
     myname = ["Abi", "Ağabey", "Amca", "Dayı",
               "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
 
-    myname2 = ["Bakan", "Belediye Başkanı", "Valisi", "Müftüsü", "Kadısı", 
+    myname2 = ["Bakan", "Valisi", "Müftüsü", "Kadısı", "Kral", "Kraliçe", "Prens", "Prenses"
     "İmamı", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktoru", 
-    "Hekimi", "Avukatı", "Öğretmeni", "Profesörü", "Doçent"]          
+    "Hekimi", "Avukatı", "Öğretmeni", "Profesörü", "Doçent", "Başkanı", "Prof.", "Dr."]          
 
     namelist = []
     for line in text:  # each sentence
         for a in range(0, len(myname)):
             myvar = myname[a]
             if myvar in line:
-                mystr = re.findall(
-                    r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
+                mystr = re.findall(r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
 
                 for element in mystr:
                     namelist.append(element)
@@ -380,15 +373,17 @@ def fetch7():
         for a in range(0, len(myname2)):
             myvar = myname2[a]
             if myvar in line:
-                mystr = re.findall(
-                    r'myvar[a-zçğışöü]*\s[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ', line)
+                mystr = re.findall(myvar + r'\w*\s[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ', line)
 
                 for element in mystr:
+                    element=element.replace(myvar, '')
                     namelist.append(element)
             a += 1
 
     myloc = ["Dağı", "Köprüsü", "Mezarı", "Sarayı", "Şehri", "Ülkesi", "Deresi", "Çayı", "Gölü",
-             "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı"]
+             "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı", "Meydanı", "Denizi", "Körfezi", "Kenti", "Tapınağı", "Kilisesi", "Otogarı",
+             "Merkezi", "Okyanusu", "Kütüphanesi", "İstasyonu", "Kayalıkları", "Limanı", "Adası", "Koyu", "Yaylası", "Tepesi", "Çayırı", "Yolu", "Kalesi", "Müzesi",
+             "Boğazı", "Ocağı", "Koğuşu", "Stadyum", "Kortu", "Sahası", "Otel", "Hotel", "Pansiyon", "Mağaza", "Vadisi", "Geçidi", "İlçesi", "Beldesi"]
     loclist = []
     for line in text:  # each sentence
         for a in range(0, len(myloc)):
@@ -401,18 +396,19 @@ def fetch7():
                     loclist.append(element)
             a += 1
 
-
+    mytime=["yıl", "sene", "yüzyıl", "hafta", "gün", "saat", "dakika", "saniye", "ay"]
     timelist = []
     for line in text:
-        if ' yıl' in line:
-            mystr = re.findall(r'\d{4}(?=\s+yıl\w+)', line)
-            for element in mystr:
-                timelist.append(element)
+        for a in range(0, len(mytime)):
+            myvar = mytime[a]
+            if myvar in line:
+                mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
 
-        if ' sene' in line:
-            mystr = re.findall(r'\d{4}(?=\s+sene\w+)', line)
-            for element in mystr:
-                timelist.append(element)
+                for element in mystr:
+                    timelist.append(element)
+            a += 1
+
+
 
         if "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" in line:
             mystr = re.findall(r'\d{4}[\'][td][ea]', line)
@@ -423,17 +419,24 @@ def fetch7():
             for element in mystr:
                 timelist.append(element)
 
-            mystr = re.findall(r'\d\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*\s+\d{4}', line)
+            mystr = re.findall(r'\d{1,2}\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*\s+\d{4}', line)
             for element in mystr:
                 timelist.append(element)
 
-            mystr = re.findall(r'\d\s+[a-zçğıöşü]*\s+\d{4}', line)
+            mystr = re.findall(r'\d{1,2}\s+[a-zçğıöşü]*\s+\d{4}', line)
             for element in mystr:
                 timelist.append(element)
 
             mystr = re.findall(r'[012]\d[:\.][012345]\d\s+', line)
             for element in mystr:
                 timelist.append(element)
+
+
+    #filters out any duplicates.
+    loclist = list(set(loclist))
+    orglist = list(set(orglist))
+    namelist = list(set(namelist))
+    timelist = list(set(timelist))
 
     jres = {'org': "Organizations: ",
             'org2': orglist,
@@ -450,10 +453,16 @@ def fetch7():
 def fetch8():
     data = request.json['taburl']
     data2 = request.json['SentNum']
-    myword = data2.lower()
-    myword2 = data2.capitalize()
-    myword = " " + myword 
-    myword2 = " " + myword2 
+    data3 = request.json["case"]
+    data2 = str(data2)
+    if data3 == "0": #Case sensitive
+        myword = data2.lower()
+        myword2 = data2.capitalize()
+    else:    
+        myword = data2
+        myword2 = data2
+    myword = " " + myword + " "
+    myword2 = " " + myword2 + " "
     html_content = requests.get(data).text
     soup = BeautifulSoup(html_content, 'lxml')
 
@@ -483,7 +492,41 @@ def fetch8():
             term+="<li>" + i +"</li>"
     if term == "<ul>":
         term = "There is no such word."
+    
     term += "</ul>"
     jres = {'detail': term}
     return jsonify(jres)
-     
+
+@app.route('/api/fetch9', methods=['POST'])
+def fetch9():
+    data = request.get_data()
+    data2 = data.decode("ascii")
+    html_content = requests.get(data2).text
+    soup = BeautifulSoup(html_content, 'lxml')
+    images = soup.find_all("img")
+    image_list = []
+    for image in images:
+        a = str(image)
+        if "http" in a:
+            image_list.append(image["src"])
+
+    term = "<ul>"
+   
+    for i in image_list:
+        try:
+            response = requests.get(i)
+            img = Image.open(io.BytesIO(response.content))
+            a = pytesseract.image_to_string(img)
+            #print(a)
+            if a.strip():
+                term+="<li>"+ a+ "</li>"
+        except:
+            continue       
+    if term == "<ul>":
+        term = "There is no image."
+        jres = {"detail2": term}
+        return jsonify(jres)
+    term += "</ul>"
+    jres = {'detail': term}
+
+    return jsonify(jres)

@@ -49,18 +49,24 @@ $(function(){
   		});		
 	});
 
-	$("#btnHeap").click(function(e){
+	$("#btnRegex").click(function(e){
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			SentRegex = prompt("Please enter a regular expression. Example: (?<=Start).+?(?=End)")
 			let taburl = tabs[0].url;
-    		
+    		dict2 = {taburl: taburl, SentRegex: SentRegex}
     		$.ajax({
         		url: "http://localhost:5000/api/fetch3",
         		type: "post",
-        		data: taburl,
+        		data: JSON.stringify(dict2),
         		contentType: "application/json",
         		success: function (response) {
            			console.log(response);
-					$("#txtResponse").text(response.detail).css({ 'color': 'black'});
+					$("#txtResponse").text("");
+					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
+					$("#txtResponse2").text(response.detail2);
+					$("#txtResponse3").text(" ");
+					$("#txtResponse4").text(" ");
+					$("#txtResponse5").text(" ");
         		}
     		});
   		});		
@@ -116,7 +122,7 @@ $(function(){
         		data: JSON.stringify(dict2),
         		contentType: "application/json",
         		success: function (response) {
-					$("#txtResponse").text("");
+					$("#txtResponse").text(" ");
 					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
 					$("#txtResponse2").text(" ");
 					$("#txtResponse3").text(" ");
@@ -149,21 +155,49 @@ $(function(){
 	});
 	$("#btnKeyword").click(function(e){
 		SentNum = prompt("Please enter a keyword");
+		let isChecked = 1; // Default value is 1 since HTML shows it as selected in initial start.
+
+		$('#caseSens').on('change', function(){
+			this.value = this.checked ? 1 : 0;
+			isChecked = this.value;
+		 }).change();
+
+		console.log(isChecked);
+		// isChecked either becomes 1 or 0; 
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			let taburl = tabs[0].url;
-			dict2 = {taburl: taburl, SentNum: SentNum}
+			dict2 = {taburl: taburl, SentNum: SentNum, case:isChecked}
     		$.ajax({
         		url: "http://localhost:5000/api/fetch8",
         		type: "post",
         		data: JSON.stringify(dict2),
         		contentType: "application/json",
         		success: function (response) {
-					$("#txtResponse").text("");
+					$("#txtResponse").text(" ");
 					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
-					$("#txtResponse2").text(" ");
+					$("#txtResponse2").text(response.detail2);
 					$("#txtResponse3").text(" ");
 					$("#txtResponse4").text(" ");
 					$("#txtResponse5").text(" ");
+        		}
+    		});
+  		});		
+	});
+	$("#btnOCR").click(function(e){
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			let taburl = tabs[0].url;
+    		$.ajax({
+        		url: "http://localhost:5000/api/fetch9",
+        		type: "post",
+        		data: taburl,
+        		contentType: "application/json",
+        		success: function (response) {
+					$("#txtResponse").text("")
+					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
+					$("#txtResponse2").text(response.detail2)
+					$("#txtResponse3").text(" ")
+					$("#txtResponse4").text(" ")
+					$("#txtResponse5").text(" ")
         		}
     		});
   		});		
