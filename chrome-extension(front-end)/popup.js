@@ -171,16 +171,11 @@ $("#btnKeyword").click(function (e) {
 
     chrome.tabs.query({active: true, currentWindow: true}, tabs => {
       let taburl = tabs[0].url;
-      document
-      .getElementById("keyword")
-      .addEventListener("keypress", function (e) {
+      document.getElementById("keyword").addEventListener("keypress", function (e) {
         var keyWord = document.getElementById("keyword");
-        //console.log(keyWord.value);
         SentNum = keyWord.value; // input searched keyword is taken
-        if (e.key === "Enter") {
-          // code for enter
+        if (e.key === "Enter") { // code for enter
           if (SentNum.length != 0) {
-            console.log(taburl);
             dict2 = { taburl: taburl, SentNum: SentNum, case: isChecked };
             $.ajax({
               url: "http://localhost:5000/api/fetch8",
