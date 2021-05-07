@@ -23,6 +23,11 @@ from sumy.summarizers.lex_rank import LexRankSummarizer
 from GetData import getData
 from TermWeighting import termWeigthing
 from enNER import nerEng
+from trNER import nertr
+from Regex import regex
+from GetSeveralData import getSeveralData
+from WordCloudplt import wordCloud
+from Keyword import keyword
 
 app = flask.Flask(__name__)
 if __name__ == '__main__':
@@ -42,8 +47,8 @@ def btnTerm():
 @app.route('/api/btnNer', methods=['POST'])
 def btnNer():
     text = getData(False)
-
     lang=detect(text)
+
     if(lang=="en"):
         TaggedOrganizations, TaggedPersons, TaggedGeographicalEntities = nerEng(text)
         jres = {'org': "Organizations: ",
@@ -54,177 +59,9 @@ def btnNer():
                 'loc2': TaggedGeographicalEntities
                 }
         return jsonify(jres)
+
     elif(lang=="tr"):
-        p = text
-        text = tokenize.sent_tokenize(p)
-
-        myorg = ["Üniversitesi", "Koleji", "Okulu", "Kurumu", "Bankası", "Şirketi", "İştirakı", "Vakfı", "Federasyonu", "Kulübü", "Takımı", "Meclisi",  "Derneği", "Holdingi", "Teşkilatı",
-                "Firması", "Bakanlığı", "Hastanesi", "Devleti", "Partisi", "Başkanlığı", "Komiserliği", "Belediyesi", "Belediyeleri", "Tiyatrosu", "İmparatorluğu", "Birliği","Bülteni", "Holding",
-                "Danışmanlığı", "Müdürlüğü", "Enstitüsü", "Delegasyonu", "Büyükelçiliği", "Konseyi", "Parlamentosu", "Ofisi", "Kurulu", "Meclisi","Gazetesi","Bülteni","Basın Odası","Basın Odası",
-                "Müsteşarlığı", "Parti", "A.Ş.", "şirketi", "Örgütü","Komutanlığı","Kuvvetleri","Operasyonu","Komitesi","Forumu", "Cumhuriyeti","Töreni","Komisyonu","Konseyi", "gazetesi","dergisi",
-                "Birimi", "Danıştay","Yargıtay","Sayıştay", "Sekreterliği", "Mahkemesi","Teşkilatı","Bank","Ajansı","Kooperasyonu","Organizasyonu","Vakfı","Televizyonu",
-                "savcılığı","Savcılığı","Başsavcılığı","kardeşi","Konferansı","kanalı", "Kanal'", "cemaati"]
-        orglist = []
-        for line in text:  # each sentence
-            for a in range(0, len(myorg)):
-                myvar = myorg[a]
-                if myvar in line:
-                    mystr = re.findall(r'[A-ZÇĞİÖŞÜ\(][A-Za-zçğıöşü\(\)]*(?:\s+[A-ZÇĞİÖŞÜ\(][a-zçğıöşü\(\)]*)* ' + myvar, line)
-
-                    for element in mystr:
-                        orglist.append(element)
-                a += 1
-
-
-        basın_file = open("basınlar.txt", "r", encoding="utf8")
-        basınf=[]
-        for l in basın_file:
-            if len(l)>1:
-                basınf.append(l.strip())
-        for line in text:
-            for ele in range(0, len(basınf)):
-                #print("eee", ele)
-                #ele=ele.strip()
-                #print("EEE", ele,"EEE")
-                if basınf[ele] in line:
-                    orglist.append(basınf[ele])
-
-
-
-        myname = ["Abi", "Ağabey", "Amca", "Dayı",
-                "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
-
-        myname2 = ["Bakan", "Vali", "Müftü", "Kadı", "Kral", "Kraliçe", "Prens", "Prenses","CEO'su","yetkilisi","Muhabiri", "Editörü",
-        "İmam", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktor", "Başbakanı", "Başkanvekili","nişanlısı", "arkadaşı olan","üyesi",
-        "Hekim", "Avukat", "Öğretmen", "Profesör", "Doçent", "Başkan", "Yardımcısı","Muhabiri","Prof.", "Dr.", "başkanı", "Büyükelçisi", "Sözcüsü","danışmanı",
-        "Lideri", "lideri", "yönetmen","Düşesi","sunucusu","ağabeyi","yöneticisi","Sekreteri","siyasetçi","öğretmen"]          
-
-        namelist = []
-        for line in text:  # each sentence
-            for a in range(0, len(myname)):
-                myvar = myname[a]
-                if myvar in line:
-                    mystr = re.findall(r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)*' + myvar, line)
-
-                    for element in mystr:
-                        namelist.append(element)
-                a += 1
-        for line in text:  # each sentence
-            for a in range(0, len(myname2)):
-                myvar = myname2[a]
-                if myvar in line:
-                    mystr = re.findall(myvar + r'\w*\s[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)*', line)
-
-                    for element in mystr:
-                        element=element.replace(myvar, '')
-                        if ord(element[0]) in range(97, 123) or element[0] == 'ı' or element[0] == 'ç' or element[0] == 'ö' or element[0] == 'ü':
-                            element = element[element.find(' '):]
-                        
-                        namelist.append(element)
-                a += 1
-
-        myloc = ["Dağı", "Köprüsü", "Mezarı", "Saray", "Şehri", "Ülkesi", "Deresi", "Çayı", "Gölü","Çölü","anakarası","kıtası"
-                "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı", "Meydanı", "Denizi", "Körfezi", "Kenti", "Tapınağı", "Kilisesi", "Otogarı",
-                "Merkezi", "Okyanusu", "Kütüphanesi", "İstasyonu", "Kayalıkları", "Limanı", "Adası","adası", "Koyu", "Yaylası", "Tepesi", "Çayırı", "Yolu", "Kalesi", "Müzesi",
-                "Boğazı", "Ocağı", "Koğuşu", "Stadyum", "Kortu", "Sahası", "Otel", "Hotel", "Pansiyon", "Mağaza", "Vadisi", "Geçidi", "İlçesi", "Beldesi", "ilçesi","bölgesi","kenti","başkenti"]
-        loclist = []
-
-        loc_file = open("Şehirler.txt", "r", encoding="utf8")
-        locf=[]
-        for l in loc_file:
-            if len(l)>1:
-                locf.append(l.strip())
-        for line in text:
-            for ele in range(0, len(locf)):
-                if locf[ele] in line:
-                    loclist.append(locf[ele])
-        #ÜLKELER
-        df1 = pd.read_excel('Ulkeler.xlsx')
-        ülkeler = df1['ulkeler'].tolist()
-        for line in text:
-            for ü in range(0, len(ülkeler)):
-                if ülkeler[ü] in  line:
-                    loclist.append(ülkeler[ü])
-
-
-        for line in text:  # each sentence
-            for a in range(0, len(myloc)):
-                myvar = myloc[a]
-                if myvar in line:
-                    mystr = re.findall(
-                        r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
-
-                    for element in mystr:
-                        loclist.append(element)
-                a += 1
-
-        mytime=["yıl", "sene", "yüzyıl", "hafta", "gün", "saat", "dakika", "saniye", "ay"]
-        aylar=["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
-        timelist = []
-        for line in text:
-
-            #aylar list  
-            for a in range(0, len(aylar)):
-                myvar = aylar[a]
-                myvar2=myvar.capitalize()
-                if myvar or myvar2 in line:
-                    mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
-                    mystr2 = re.findall(r'\d{1,4}\s' + myvar2 +'\w*', line)
-
-                    for element in mystr:
-                        timelist.append(element)
-                    for element in mystr2:
-                        timelist.append(element)
-
-                    #if months are not written together with the numbers
-                    if len(mystr)==0 and len(mystr2)==0:
-                        mystr = re.findall(myvar +r'\w*', line)
-                        mystr = re.findall(myvar2 +r'\w*', line)
-                        for element in mystr:
-                            timelist.append(element)
-                        for element in mystr2:
-                            timelist.append(element)
-
-                a += 1
-
-            #mytime list
-            for a in range(0, len(mytime)):
-                myvar = mytime[a]
-                if myvar in line:
-                    mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
-
-                    for element in mystr:
-                        timelist.append(element)
-                a += 1
-
-            if "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" in line:
-                mystr = re.findall(r'\d{4}[\'][td][ea]', line)
-                for element in mystr:
-                    timelist.append(element)
-
-                mystr = re.findall(r'\d\d[-\.]\d\d[-\.]\d{4}', line)
-                for element in mystr:
-                    timelist.append(element)
-
-                #SONRA BAK !!!
-                mystr = re.findall(r'\s\d{1,2}\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*\s+\d{4}', line)
-                for element in mystr:
-                    timelist.append(element)
-                
-                mystr = re.findall(r'\s\d{1,2}\s+[a-zçğıöşü]*\s+\d{4}', line)
-                for element in mystr:
-                    timelist.append(element)
-
-                mystr = re.findall(r'[012]\d[:\.][012345]\d\s+', line)
-                for element in mystr:
-                    timelist.append(element)
-
-
-        #filters out any duplicates.
-        loclist = list(set(loclist))
-        orglist = list(set(orglist))
-        namelist = list(set(namelist))
-        timelist = list(set(timelist))
+        orglist,namelist,loclist,timelist= nertr(text)
 
         jres = {'org': "Organizations: ",
                 'org2': orglist,
@@ -246,146 +83,26 @@ def btnNer():
 
 @app.route('/api/btnRegex', methods=['POST'])
 def btnRegex():
-    data = request.json['taburl']
-    data2 = request.json['SentRegex']
-    data2 = str(data2)
-    html_content = requests.get(data).text
-    soup = BeautifulSoup(html_content, 'lxml')
-    for a in soup.findAll('a', href=True):
-        a.decompose()
-    footer_tag = soup.footer
-    if footer_tag == True:
-        footer_tag.decompose()
-    mytext = soup.find_all("p")
-    text = ""
-    for points in mytext:
-        point = str(points.text)
-        text += point
-    
-    text = text.replace(".",". ")
-
-    data2= r'' + data2 
-    result=re.findall(data2, text)
-
-    if len(result)==0:
-        mysent="Expression is not found"
-        result.append(mysent)
-        jres = {'detail2': result}
-        return jsonify(jres)
-
-    term = "<ul>"
-    
-    for i in result:
-        i=i.strip()
-        if len(i)>0:
-            term+="<li>" + i +"</li>"
-    
-    term += "</ul>"
-    
-    if term=="<ul></ul>":
-        term="Expression is not found"
-        
+    text,data2 = getSeveralData("taburl", "SentRegex", False)
+    data2=str(data2)
+    term=regex(text, data2)
+          
     jres = {'detail': term}
     return jsonify(jres)
 
 
 @app.route('/api/btnCon', methods=['POST'])
 def btnCon():
-    data = request.get_data()
-    data2 = data.decode("ascii")
-    html_content = requests.get(data2).text
-    soup = BeautifulSoup(html_content, 'lxml')
-    for a in soup.findAll('a', href=True):
-        a.decompose()
-    footer_tag = soup.footer
-    if footer_tag == True:
-        footer_tag.decompose()
-    mytext = soup.find_all("p")
-    text = ""
-    for points in mytext:
-        point = str(points.text)
-        text += point + " "
+    text=getData(False)
 
     jres = {'detail': text}
-
     return jsonify(jres)
 
 
 @app.route('/api/btnWord', methods=['POST'])
 def btnWord():
-    sword = ['acaba', 'ama', 'aslında', 'az', 'bazı', 'belki', 'biri', 'birkaç', 'birşey', 'biz', 'bu', 'çok', 'çünkü', 'da', 'daha', 'de', 'defa', 'diye', 'eğer', 'en', 'gibi', 'hem', 'hep', 'hepsi', 'her',
-             'hiç', 'için', 'ile', 'ise', 'kez', 'ki', 'kim', 'mı', 'mu', 'mü', 'nasıl', 'ne', 'neden', 'nerde', 'nerede', 'nereye', 'niçin', 'niye', 'o', 'sanki', 'şey', 'siz', 'şu', 'tüm', 've', 'veya', 'ya', 'yani']
-    sword2 = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down',
-              'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"]
-
-    data = request.get_data()
-    data2 = data.decode("ascii")
-    html_content = requests.get(data2).text
-    soup = BeautifulSoup(html_content, 'lxml')
-    for a in soup.findAll('a', href=True):
-        a.decompose()
-    footer_tag = soup.footer
-    if footer_tag == True:
-        footer_tag.decompose()
-    mytext = soup.find_all("p")
-    text = []
-    for points in mytext:
-        point = str(points.text)
-        text.append(point)
-
-    a = 0
-    for i in text:
-        i = i.lower()
-        new = re.sub(r'[^\w\s]', '', i)
-        text[a] = new
-        a = a + 1
-
-    aa = 0
-    for i in text:  # for every sentence
-        sentence = i
-        sentence = nltk.wordpunct_tokenize(sentence)
-
-        mylist = []
-        for a in sentence:
-            if a in sword2:
-                mylist.append(a)
-
-        for u in mylist:
-            sentence.remove(u)
-
-        new_s = ""
-        for y in sentence:
-            new_s = new_s + " " + y
-
-        text[aa] = new_s
-        aa = aa + 1
-
-    vectorizer = TfidfVectorizer()
-    vecs = vectorizer.fit_transform(text)
-    feature_names = vectorizer.get_feature_names()
-    aaa = vecs.transpose().sum(axis=1)
-    lst1 = aaa.tolist()
-
-    myl = []
-    for i in lst1:
-        res = str(i)[1:-1]
-        ress = float(res)
-        myl.append(ress)
-
-    # creating the dictionary to give as a parameter to wordcloud function
-    mydict = {}
-    n = 0
-    for name in feature_names:
-        mydict[name] = myl[n]
-        n = n + 1
-
-    mywc = WordCloud(background_color="black", width=1000, height=1000)
-    mywc.generate_from_frequencies(mydict)
-
-    plt.figure(figsize=(6, 6), facecolor=None)
-    plt.imshow(mywc, interpolation="bilinear")
-    plt.axis("off")
-    plt.tight_layout(pad=0)
+    text=getData(True)
+    plt=wordCloud(text)
   
     jres = {'detail': plt.show()}
     return jsonify(jres)
@@ -393,29 +110,13 @@ def btnWord():
 
 @app.route('/api/btnSum', methods=['POST'])
 def btnSum():
-    data = request.json['taburl']
-    data2 = request.json['SentNum']
+    text,data2=getSeveralData("taburl", "SentNum", False)
     data2 = int(data2) 
 
     if data2 < 1:
         data2 = 1
-    html_content = requests.get(data).text
-    soup = BeautifulSoup(html_content, 'lxml')
-    for a in soup.findAll('a', href=True):
-        a.decompose()
-    footer_tag = soup.footer
-    if footer_tag == True:
-        footer_tag.decompose()
-    mytext = soup.find_all("p")
-    text = ""
-    for points in mytext:
-        point = str(points.text)
-        text += point
     
-    text = text.replace(".",". ")
-
     lang=detect(text)
-    
     mydict = {"en": "english", "tr": "turkish", "de": "german", "es": "spanish", "fr": "french"}
     lang2 = mydict.get(lang)
     if(lang2 == None):
@@ -438,269 +139,13 @@ def btnSum():
     return jsonify(jres)
 
 
-@app.route('/api/btnKeywor', methods=['POST'])
-def btnKeywor():
-    data = request.get_data()
-    data2 = data.decode("ascii")
-    html_content = requests.get(data2).text
-    soup = BeautifulSoup(html_content, 'lxml')
-
-    for a in soup.findAll('a', href=True):
-        a.decompose()
-    footer_tag = soup.footer
-    if footer_tag == True:
-        footer_tag.decompose()
-    mytext = soup.find_all("p")
-    text = ""
-
-    for points in mytext:
-        point = str(points.text)
-        text += point
-
-    p = text
-    text = tokenize.sent_tokenize(p)
-
-    myorg = ["Üniversitesi", "Koleji", "Okulu", "Kurumu", "Bankası", "Şirketi", "İştirakı", "Vakfı", "Federasyonu", "Kulübü", "Takımı", "Meclisi",  "Derneği", "Holdingi", "Teşkilatı",
-            "Firması", "Bakanlığı", "Hastanesi", "Devleti", "Partisi", "Başkanlığı", "Komiserliği", "Belediyesi", "Belediyeleri", "Tiyatrosu", "İmparatorluğu", "Birliği","Bülteni", "Holding",
-            "Danışmanlığı", "Müdürlüğü", "Enstitüsü", "Delegasyonu", "Büyükelçiliği", "Konseyi", "Parlamentosu", "Ofisi", "Kurulu", "Meclisi","Gazetesi","Bülteni","Basın Odası","Basın Odası",
-            "Müsteşarlığı", "Parti", "A.Ş.", "şirketi", "Örgütü","Komutanlığı","Kuvvetleri","Operasyonu","Komitesi","Forumu", "Cumhuriyeti","Töreni","Komisyonu","Konseyi", "gazetesi","dergisi",
-            "Birimi", "Danıştay","Yargıtay","Sayıştay", "Sekreterliği", "Mahkemesi","Teşkilatı","Bank","Ajansı","Kooperasyonu","Organizasyonu","Vakfı","Televizyonu",
-            "savcılığı","Savcılığı","Başsavcılığı","kardeşi","Konferansı","kanalı", "Kanal'", "cemaati"]
-    orglist = []
-    for line in text:  # each sentence
-        for a in range(0, len(myorg)):
-            myvar = myorg[a]
-            if myvar in line:
-                mystr = re.findall(r'[A-ZÇĞİÖŞÜ\(][A-Za-zçğıöşü\(\)]*(?:\s+[A-ZÇĞİÖŞÜ\(][a-zçğıöşü\(\)]*)* ' + myvar, line)
-
-                for element in mystr:
-                    orglist.append(element)
-            a += 1
-
-
-    basın_file = open("basınlar.txt", "r", encoding="utf8")
-    basınf=[]
-    for l in basın_file:
-        if len(l)>1:
-            basınf.append(l.strip())
-    for line in text:
-        print("LINE:", line)
-        for ele in range(0, len(basınf)):
-            #print("eee", ele)
-            #ele=ele.strip()
-            #print("EEE", ele,"EEE")
-            if basınf[ele] in line:
-                print("YESS")
-                orglist.append(basınf[ele])
-
-
-
-    myname = ["Abi", "Ağabey", "Amca", "Dayı",
-              "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
-
-    myname2 = ["Bakan", "Vali", "Müftü", "Kadı", "Kral", "Kraliçe", "Prens", "Prenses","CEO'su","yetkilisi","Muhabiri", "Editörü",
-    "İmam", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktor", "Başbakanı", "Başkanvekili","nişanlısı", "arkadaşı olan","üyesi",
-    "Hekim", "Avukat", "Öğretmen", "Profesör", "Doçent", "Başkan", "Yardımcısı","Muhabiri","Prof.", "Dr.", "başkanı", "Büyükelçisi", "Sözcüsü","danışmanı",
-    "Lideri", "lideri", "yönetmen","Düşesi","sunucusu","ağabeyi","yöneticisi","Sekreteri","siyasetçi","öğretmen"]          
-
-    namelist = []
-    for line in text:  # each sentence
-        for a in range(0, len(myname)):
-            myvar = myname[a]
-            if myvar in line:
-                mystr = re.findall(r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)*' + myvar, line)
-
-                for element in mystr:
-                    namelist.append(element)
-            a += 1
-    for line in text:  # each sentence
-        for a in range(0, len(myname2)):
-            myvar = myname2[a]
-            if myvar in line:
-                mystr = re.findall(myvar + r'\w*\s[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)*', line)
-
-                for element in mystr:
-                    element=element.replace(myvar, '')
-                    if ord(element[0]) in range(97, 123) or element[0] == 'ı' or element[0] == 'ç' or element[0] == 'ö' or element[0] == 'ü':
-                        element = element[element.find(' '):]
-                    
-                    namelist.append(element)
-            a += 1
-
-    myloc = ["Dağı", "Köprüsü", "Mezarı", "Saray", "Şehri", "Ülkesi", "Deresi", "Çayı", "Gölü","Çölü","anakarası","kıtası"
-             "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı", "Meydanı", "Denizi", "Körfezi", "Kenti", "Tapınağı", "Kilisesi", "Otogarı",
-             "Merkezi", "Okyanusu", "Kütüphanesi", "İstasyonu", "Kayalıkları", "Limanı", "Adası","adası", "Koyu", "Yaylası", "Tepesi", "Çayırı", "Yolu", "Kalesi", "Müzesi",
-             "Boğazı", "Ocağı", "Koğuşu", "Stadyum", "Kortu", "Sahası", "Otel", "Hotel", "Pansiyon", "Mağaza", "Vadisi", "Geçidi", "İlçesi", "Beldesi", "ilçesi","bölgesi","kenti","başkenti"]
-    loclist = []
-
-    loc_file = open("Şehirler.txt", "r", encoding="utf8")
-    locf=[]
-    for l in loc_file:
-        if len(l)>1:
-            locf.append(l.strip())
-    for line in text:
-        print("LINE:", line)
-        for ele in range(0, len(locf)):
-            if locf[ele] in line:
-                print("YESS")
-                loclist.append(locf[ele])
-    #ÜLKELER
-    df1 = pd.read_excel('Ulkeler.xlsx')
-    ülkeler = df1['ulkeler'].tolist()
-    for line in text:
-        for ü in range(0, len(ülkeler)):
-            if ülkeler[ü] in  line:
-                loclist.append(ülkeler[ü])
-
-
-    for line in text:  # each sentence
-        for a in range(0, len(myloc)):
-            myvar = myloc[a]
-            if myvar in line:
-                mystr = re.findall(
-                    r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
-
-                for element in mystr:
-                    loclist.append(element)
-            a += 1
-
-    mytime=["yıl", "sene", "yüzyıl", "hafta", "gün", "saat", "dakika", "saniye", "ay"]
-    aylar=["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
-    timelist = []
-    for line in text:
-
-        #aylar list  
-        for a in range(0, len(aylar)):
-            myvar = aylar[a]
-            myvar2=myvar.capitalize()
-            if myvar or myvar2 in line:
-                mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
-                mystr2 = re.findall(r'\d{1,4}\s' + myvar2 +'\w*', line)
-
-                for element in mystr:
-                    timelist.append(element)
-                for element in mystr2:
-                    timelist.append(element)
-
-                #if months are not written together with the numbers
-                if len(mystr)==0 and len(mystr2)==0:
-                    mystr = re.findall(myvar +r'\w*', line)
-                    mystr = re.findall(myvar2 +r'\w*', line)
-                    for element in mystr:
-                        timelist.append(element)
-                    for element in mystr2:
-                        timelist.append(element)
-
-            a += 1
-
-        #mytime list
-        for a in range(0, len(mytime)):
-            myvar = mytime[a]
-            if myvar in line:
-                mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
-
-                for element in mystr:
-                    timelist.append(element)
-            a += 1
-
-
-
-        if "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" in line:
-            mystr = re.findall(r'\d{4}[\'][td][ea]', line)
-            for element in mystr:
-                timelist.append(element)
-
-            mystr = re.findall(r'\d\d[-\.]\d\d[-\.]\d{4}', line)
-            for element in mystr:
-                timelist.append(element)
-
-            #SONRA BAK !!!
-            mystr = re.findall(r'\s\d{1,2}\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*\s+\d{4}', line)
-            for element in mystr:
-                timelist.append(element)
-            
-            mystr = re.findall(r'\s\d{1,2}\s+[a-zçğıöşü]*\s+\d{4}', line)
-            for element in mystr:
-                timelist.append(element)
-
-            mystr = re.findall(r'[012]\d[:\.][012345]\d\s+', line)
-            for element in mystr:
-                timelist.append(element)
-
-
-    #filters out any duplicates.
-    loclist = list(set(loclist))
-    orglist = list(set(orglist))
-    namelist = list(set(namelist))
-    timelist = list(set(timelist))
-
-    jres = {'org': "Organizations: ",
-            'org2': orglist,
-            'per': 'Persons: ',
-            'per2': namelist,
-            'loc': 'Locations:',
-            'loc2': loclist,
-            'time': "Time:",
-            'time2': timelist
-            }
-    return jsonify(jres)
 
 @app.route('/api/btnKeyword', methods=['POST'])
 def btnKeyword():
-    data = request.json['taburl']
-    data2 = request.json['SentNum']
-    data3 = request.json["case"]
-    data2 = str(data2)
-    if data3 == "0": #Case sensitive
-        myword = data2.lower()
-        myword2 = data2.capitalize()
-    else:    
-        myword = data2
-        myword2 = data2
-    
-    html_content = requests.get(data).text
-    soup = BeautifulSoup(html_content, 'lxml')
 
-    for a in soup.findAll('a', href=True):
-        a.decompose()
-    footer_tag = soup.footer
-    if footer_tag == True:
-        footer_tag.decompose()
-    mytext = soup.find_all("p")
-    text = ""
+    data, data2, data3=getSeveralData("taburl", "SentNum","case")   
+    sub_text2=keyword(data,data2,data3)
 
-    for points in mytext:
-        point = str(points.text)
-        text += point
-
-    p = text
-    p=p.replace('.', '. ')
-   
-    text = tokenize.sent_tokenize(p)
-    
-    mylist=[]
-
-    term = "<ul>"
-    
-    for i in text:
-        b = i
-        i = re.sub("[^a-zA-Z0-9\s]+", " ",i)
-        i = i.split()
-        for w in i:
-            if w==myword:
-                term+="<li>" + b +"</li>"     
-            elif w==myword2:
-                term+="<li>" + b +"</li>"
-           
-
-    if term == "<ul>":
-        term = "There is no such word."
-    
-    term += "</ul>"
-    reg = re.compile(myword)
-    reg2 = re.compile(myword2)
-    sub_text = re.sub(pattern=reg, string=term, repl="<span style='color:blue;'>" + myword + "</span>")
-    sub_text2 = re.sub(pattern=reg2, string=sub_text, repl="<span style='color:blue;'>" + myword2 + "</span>")
     jres = {'detail': sub_text2}
     return jsonify(jres)
 
