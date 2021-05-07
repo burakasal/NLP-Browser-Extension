@@ -22,13 +22,7 @@ chrome.tabs.query({
   var title = tab.title;
 
   chrome.i18n.detectLanguage(title, function (result) {
-    var outputLang = "Detected Language: ";
-    var outputPercent = "Language Percentage: ";
-    for (i = 0; i < result.languages.length; i++) {
-      outputLang += result.languages[i].language + " ";
-      outputPercent += result.languages[i].percentage + " ";
-    }
-    document.getElementById("language").innerHTML = outputLang + "\n" + outputPercent + "\nReliable: " + result.isReliable;
+    var outputLang = result.languages[i].language;
     
     var myDict = {
       "en": "English",
@@ -46,8 +40,8 @@ chrome.tabs.query({
         return outputLang;
       }
     }
-    var outputLang2 = get(myDict, outputLang.slice)
-    // document.getElementById("language").innerHTML = outputLang2;
+    var outputLang2 = get(myDict, outputLang)
+    document.getElementById("language").innerHTML = outputLang2;
     if (outputLang2 !== "English" && outputLang2 !== "Turkish") {
       document.getElementById("btnNer").style.display = "none";
     }
