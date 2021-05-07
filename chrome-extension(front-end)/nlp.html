@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        height: 90px;
+        width: 450px;
+        background-color: #800000;
+      }
+      .wrapper {
+        text-align: center;
+        margin: 0 auto;
+        float: left;
+        background-color: #800000;
+        padding: 12px;
+      }
+      .output {
+        background-color: #f0f8ff;
+        padding: 8px;
+        margin-bottom: auto;
+      }
+      .buttons {
+        background-color: #ffe4e1;
+        border-radius: 6px;
+        border: 3.5px solid #000000;
+        border-width: 3.9px;
+      }
+      .buttons:hover {
+        background-color: #555555;
+        color: white;
+      }
+      #btnDo4,
+      #btnSum {
+        display: inline-block;
+      }
+      #txtResponse,
+      #txtResponse2,
+      #txtResponse4, 
+      #txtResponse6 {
+        text-align: center;
+      }
+      .divider {
+        width: 5px;
+        height: auto;
+        display: inline-block;
+      }
+    </style>
+    <script src="res/js/jquery-3.5.1.js"></script>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <button id="btnTerm" class="buttons">Term Weighting</button>
+      <div class="divider"></div>
+      <button id="btnNer" class="buttons">NER</button>
+      <div class="divider"></div>
+      <button id="btnRegex" class="buttons">Regex</button>
+      <div class="divider"></div>
+      <button id="btnCon" class="buttons">Content</button>
+      <div class="divider"></div>
+      <button id="btnWord" class="buttons">Wordcloud</button>
+      <div class="divider"></div>
+      <button id="btnSum" class="buttons">Summary</button>
+      <div class="divider"></div>
+      <button id="btnOCR" class="buttons">Image</button>
+      <div class="divider"></div>
+      <div id="caseSensID">
+        <button id="btnKeyword" class="buttons">Keyword</button>
+      </div>
+    </div>
+
+    <div class="output">
+      <h4 id="txtResponse">
+        Page Language is 
+        <span id="language" style="color: #800000">
+        </span>
+      </h4>
+      <h4 id="txtResponse1"></h4>
+      <h4 id="txtResponse2"></h4>
+      <h4 id="txtResponse3"></h4>
+      <h4 id="txtResponse4"></h4>
+      <h4 id="txtResponse5"></h4>
+      <h4 id="txtResponse6"></h4>
+      <h4 id="txtResponse7"></h4>
+    </div>
+    <script type="text/javascript" src="popup.js"></script>
+  </body>
+</html>

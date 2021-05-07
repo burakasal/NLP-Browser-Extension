@@ -7,73 +7,98 @@ function myFunction() {
   chrome.tabs.getSelected(null, function (tab) {
     chrome.tabs.detectLanguage(tab.id, function (language) {
       if (language !== null) {
-        window.location.href = "en.html";
+        window.location.href = "nlp.html";
       }
-      //     else if(language == "tr"){
-      //           window.location.href="tr.html";
-      //     }
     });
   });
-  
+
 }
 
+chrome.tabs.query({
+  active: true,
+  currentWindow: true
+}, function (tabs) {
+  var tab = tabs[0];
+  var title = tab.title;
 
-var address;
+  chrome.i18n.detectLanguage(title, function (result) {
+    var outputLang = "Detected Language: ";
+    var outputPercent = "Language Percentage: ";
+    for (i = 0; i < result.languages.length; i++) {
+      outputLang += result.languages[i].language + " ";
+      outputPercent += result.languages[i].percentage + " ";
+    }
+    document.getElementById("language").innerHTML = outputLang + "\n" + outputPercent + "\nReliable: " + result.isReliable;
+    
+    var myDict = {
+      "en": "English",
+      "tr": "Turkish",
+      "de": "German",
+      "es": "Spanish",
+      "fr": "French"
+    }
 
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    var tab = tabs[0];
-    var title = tab.title;
+    function get(object, key) {
+      var result = object[key];
+      if (typeof (result) !== "undefined") {
+        return result;
+      } else {
+        return outputLang;
+      }
+    }
+    var outputLang2 = get(myDict, outputLang.slice)
+    // document.getElementById("language").innerHTML = outputLang2;
+    if (outputLang2 !== "English" && outputLang2 !== "Turkish") {
+      document.getElementById("btnNer").style.display = "none";
+    }
 
-    console.log("Title: " + title);
-
-    chrome.i18n.detectLanguage(title, function (result) {
-          var outputLang = "";
-          for (i = 0; i < result.languages.length; i++) {
-            outputLang += result.languages[i].language + " ";
-          }
-          console.log(result);
-          document.getElementById("language").innerHTML = outputLang;
-        });
+  });
 });
 
 
 window.onload = function () {
-
-  document.getElementById("btnKeyword").addEventListener(
-    "click",
+  document.getElementById("btnKeyword").addEventListener("click",
     function () {
-      var labelKeyword = document.createElement("label");
-      labelKeyword.setAttribute("for", "keyword");
-      labelKeyword.innerText = "Keyword:";
-      labelKeyword.setAttribute("id", "keywordLabel");
-      document.getElementById("caseSensID").appendChild(labelKeyword);
+      if (!document.getElementById("keywordLabel")) {
+        var labelKeyword = document.createElement("label");
+        labelKeyword.setAttribute("for", "keyword");
+        labelKeyword.innerText = "Keyword:";
+        labelKeyword.setAttribute("id", "keywordLabel");
+        labelKeyword.setAttribute("style", "font-weight: bold;");
+        document.getElementById("caseSensID").appendChild(labelKeyword);
 
-      var inputKeyword = document.createElement("input");
-      inputKeyword.setAttribute("type", "text");
-      inputKeyword.setAttribute("id", "keyword");
-      inputKeyword.setAttribute("name", "keyword");
-      document.getElementById("caseSensID").appendChild(inputKeyword);
+        var inputKeyword = document.createElement("input");
+        inputKeyword.setAttribute("type", "text");
+        inputKeyword.setAttribute("id", "keyword");
+        inputKeyword.setAttribute("name", "keyword");
+        document.getElementById("caseSensID").appendChild(inputKeyword);
 
-      var inputCheckbox = document.createElement("input");
-      inputCheckbox.setAttribute("type", "checkbox");
-      inputCheckbox.setAttribute("name", "caseSens");
-      inputCheckbox.setAttribute("value", "1");
-      inputCheckbox.setAttribute("id", "caseSens");
-      inputCheckbox.setAttribute("checked", "checked");
-      document.getElementById("caseSensID").appendChild(inputCheckbox);
+        var inputCheckbox = document.createElement("input");
+        inputCheckbox.setAttribute("type", "checkbox");
+        inputCheckbox.setAttribute("name", "caseSens");
+        inputCheckbox.setAttribute("value", "1");
+        inputCheckbox.setAttribute("id", "caseSens");
+        inputCheckbox.setAttribute("checked", "checked");
+        document.getElementById("caseSensID").appendChild(inputCheckbox);
 
-      var labelCheckbox = document.createElement("label");
-      labelCheckbox.setAttribute("for", "caseSens");
-      labelCheckbox.setAttribute("style", "color: blue;");
-      labelCheckbox.setAttribute("id", "checkBoxLabel");
-      labelCheckbox.innerHTML = "Case Sensitive";
-      document.getElementById("caseSensID").appendChild(labelCheckbox);
+        var labelCheckbox = document.createElement("label");
+        labelCheckbox.setAttribute("for", "caseSens");
+        labelCheckbox.setAttribute("style", "color: blue;");
+        labelCheckbox.setAttribute("id", "checkBoxLabel");
+        labelCheckbox.innerHTML = "Case Sensitive";
+        document.getElementById("caseSensID").appendChild(labelCheckbox);
+      } else {
+        document.getElementById("keyword").style.display = "inline";
+        document.getElementById("caseSens").style.display = "inline";
+        document.getElementById("checkBoxLabel").style.display = "inline";
+        document.getElementById("keywordLabel").style.display = "inline";
+
+      }
     },
-    { once: true }
   );
 
   var elems = document.getElementsByClassName("buttons");
-  for (var i = elems.length; i--; ) {
+  for (var i = elems.length; i--;) {
     elems[i].addEventListener("click", fn, false);
   }
 

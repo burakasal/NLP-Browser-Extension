@@ -8,6 +8,8 @@ import pandas as pd
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
+# import matplotlib
+# matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import collections
 from wordcloud import WordCloud
@@ -17,16 +19,21 @@ import pytesseract
 import io
 from PIL import Image
 import os 
+from langdetect import detect
+import sumy 
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lex_rank import LexRankSummarizer
 
 
 app = flask.Flask(__name__)
 if __name__ == '__main__':
     app.debug = True
     app.run()
+ 
 
-
-@app.route('/api/fetch', methods=['POST'])
-def fetch():
+@app.route('/api/btnTerm', methods=['POST'])
+def btnTerm():
     data = request.get_data()
     data2 = data.decode("ascii")
     html_content = requests.get(data2).text
@@ -99,8 +106,8 @@ def fetch():
     return jsonify(jres)
 
 
-@app.route('/api/fetch2', methods=['POST'])
-def fetch2():
+@app.route('/api/btnNer', methods=['POST'])
+def btnNer():
     data = request.get_data()
     data2 = data.decode("ascii")
     html_content = requests.get(data2).text
@@ -118,40 +125,230 @@ def fetch2():
         point = str(points.text)
         text += point
 
-    nlp = spacy.load("en_core_web_sm")
+    lang=detect(text)
+    if(lang=="en"):
+        nlp = spacy.load("en_core_web_sm")
 
-    doc = nlp(text)
+        doc = nlp(text)
 
-    OrganizationList = []
-    GPEList = []
-    PersonList = []
-    for ent in doc.ents:
-        if ent.label_ == "PERSON":
-            if ent.text not in PersonList:
-                PersonList.append(ent.text)
-        if ent.label_ == "ORG":
-            if ent.text not in OrganizationList:
-                OrganizationList.append(ent.text)
-        if ent.label_ == "GPE":
-            if ent.text not in GPEList:
-                GPEList.append(ent.text)
+        OrganizationList = []
+        GPEList = []
+        PersonList = []
+        for ent in doc.ents:
+            if ent.label_ == "PERSON":
+                if ent.text not in PersonList:
+                    PersonList.append(ent.text)
+            if ent.label_ == "ORG":
+                if ent.text not in OrganizationList:
+                    OrganizationList.append(ent.text)
+            if ent.label_ == "GPE":
+                if ent.text not in GPEList:
+                    GPEList.append(ent.text)
 
-    TaggedOrganizations = ', '.join(OrganizationList)
-    TaggedPersons = ', '.join(PersonList)
-    TaggedGeographicalEntities = ', '.join(GPEList)
+        TaggedOrganizations = ', '.join(OrganizationList)
+        TaggedPersons = ', '.join(PersonList)
+        TaggedGeographicalEntities = ', '.join(GPEList)
 
-    jres = {'org': "Organizations: ",
-            'org2': TaggedOrganizations,
-            'per': 'Persons: ',
-            'per2': TaggedPersons,
-            'loc': 'Locations: ',
-            'loc2': TaggedGeographicalEntities
-            }
-    return jsonify(jres)
+        jres = {'org': "Organizations: ",
+                'org2': TaggedOrganizations,
+                'per': 'Persons: ',
+                'per2': TaggedPersons,
+                'loc': 'Locations: ',
+                'loc2': TaggedGeographicalEntities
+                }
+        return jsonify(jres)
+    elif(lang=="tr"):
+        p = text
+        text = tokenize.sent_tokenize(p)
+
+        myorg = ["Üniversitesi", "Koleji", "Okulu", "Kurumu", "Bankası", "Şirketi", "İştirakı", "Vakfı", "Federasyonu", "Kulübü", "Takımı", "Meclisi",  "Derneği", "Holdingi", "Teşkilatı",
+                "Firması", "Bakanlığı", "Hastanesi", "Devleti", "Partisi", "Başkanlığı", "Komiserliği", "Belediyesi", "Belediyeleri", "Tiyatrosu", "İmparatorluğu", "Birliği","Bülteni", "Holding",
+                "Danışmanlığı", "Müdürlüğü", "Enstitüsü", "Delegasyonu", "Büyükelçiliği", "Konseyi", "Parlamentosu", "Ofisi", "Kurulu", "Meclisi","Gazetesi","Bülteni","Basın Odası","Basın Odası",
+                "Müsteşarlığı", "Parti", "A.Ş.", "şirketi", "Örgütü","Komutanlığı","Kuvvetleri","Operasyonu","Komitesi","Forumu", "Cumhuriyeti","Töreni","Komisyonu","Konseyi", "gazetesi","dergisi",
+                "Birimi", "Danıştay","Yargıtay","Sayıştay", "Sekreterliği", "Mahkemesi","Teşkilatı","Bank","Ajansı","Kooperasyonu","Organizasyonu","Vakfı","Televizyonu",
+                "savcılığı","Savcılığı","Başsavcılığı","kardeşi","Konferansı","kanalı", "Kanal'", "cemaati"]
+        orglist = []
+        for line in text:  # each sentence
+            for a in range(0, len(myorg)):
+                myvar = myorg[a]
+                if myvar in line:
+                    mystr = re.findall(r'[A-ZÇĞİÖŞÜ\(][A-Za-zçğıöşü\(\)]*(?:\s+[A-ZÇĞİÖŞÜ\(][a-zçğıöşü\(\)]*)* ' + myvar, line)
+
+                    for element in mystr:
+                        orglist.append(element)
+                a += 1
 
 
-@app.route('/api/fetch3', methods=['POST'])
-def fetch3():
+        basın_file = open("basınlar.txt", "r", encoding="utf8")
+        basınf=[]
+        for l in basın_file:
+            if len(l)>1:
+                basınf.append(l.strip())
+        for line in text:
+            for ele in range(0, len(basınf)):
+                #print("eee", ele)
+                #ele=ele.strip()
+                #print("EEE", ele,"EEE")
+                if basınf[ele] in line:
+                    orglist.append(basınf[ele])
+
+
+
+        myname = ["Abi", "Ağabey", "Amca", "Dayı",
+                "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
+
+        myname2 = ["Bakan", "Vali", "Müftü", "Kadı", "Kral", "Kraliçe", "Prens", "Prenses","CEO'su","yetkilisi","Muhabiri", "Editörü",
+        "İmam", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktor", "Başbakanı", "Başkanvekili","nişanlısı", "arkadaşı olan","üyesi",
+        "Hekim", "Avukat", "Öğretmen", "Profesör", "Doçent", "Başkan", "Yardımcısı","Muhabiri","Prof.", "Dr.", "başkanı", "Büyükelçisi", "Sözcüsü","danışmanı",
+        "Lideri", "lideri", "yönetmen","Düşesi","sunucusu","ağabeyi","yöneticisi","Sekreteri","siyasetçi","öğretmen"]          
+
+        namelist = []
+        for line in text:  # each sentence
+            for a in range(0, len(myname)):
+                myvar = myname[a]
+                if myvar in line:
+                    mystr = re.findall(r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)*' + myvar, line)
+
+                    for element in mystr:
+                        namelist.append(element)
+                a += 1
+        for line in text:  # each sentence
+            for a in range(0, len(myname2)):
+                myvar = myname2[a]
+                if myvar in line:
+                    mystr = re.findall(myvar + r'\w*\s[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)*', line)
+
+                    for element in mystr:
+                        element=element.replace(myvar, '')
+                        if ord(element[0]) in range(97, 123) or element[0] == 'ı' or element[0] == 'ç' or element[0] == 'ö' or element[0] == 'ü':
+                            element = element[element.find(' '):]
+                        
+                        namelist.append(element)
+                a += 1
+
+        myloc = ["Dağı", "Köprüsü", "Mezarı", "Saray", "Şehri", "Ülkesi", "Deresi", "Çayı", "Gölü","Çölü","anakarası","kıtası"
+                "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı", "Meydanı", "Denizi", "Körfezi", "Kenti", "Tapınağı", "Kilisesi", "Otogarı",
+                "Merkezi", "Okyanusu", "Kütüphanesi", "İstasyonu", "Kayalıkları", "Limanı", "Adası","adası", "Koyu", "Yaylası", "Tepesi", "Çayırı", "Yolu", "Kalesi", "Müzesi",
+                "Boğazı", "Ocağı", "Koğuşu", "Stadyum", "Kortu", "Sahası", "Otel", "Hotel", "Pansiyon", "Mağaza", "Vadisi", "Geçidi", "İlçesi", "Beldesi", "ilçesi","bölgesi","kenti","başkenti"]
+        loclist = []
+
+        loc_file = open("Şehirler.txt", "r", encoding="utf8")
+        locf=[]
+        for l in loc_file:
+            if len(l)>1:
+                locf.append(l.strip())
+        for line in text:
+            for ele in range(0, len(locf)):
+                if locf[ele] in line:
+                    loclist.append(locf[ele])
+        #ÜLKELER
+        df1 = pd.read_excel('Ulkeler.xlsx')
+        ülkeler = df1['ulkeler'].tolist()
+        for line in text:
+            for ü in range(0, len(ülkeler)):
+                if ülkeler[ü] in  line:
+                    loclist.append(ülkeler[ü])
+
+
+        for line in text:  # each sentence
+            for a in range(0, len(myloc)):
+                myvar = myloc[a]
+                if myvar in line:
+                    mystr = re.findall(
+                        r'[A-ZÇĞİÖŞÜ][a-zçğıöşü]*(?:\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*)* ' + myvar, line)
+
+                    for element in mystr:
+                        loclist.append(element)
+                a += 1
+
+        mytime=["yıl", "sene", "yüzyıl", "hafta", "gün", "saat", "dakika", "saniye", "ay"]
+        aylar=["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
+        timelist = []
+        for line in text:
+
+            #aylar list  
+            for a in range(0, len(aylar)):
+                myvar = aylar[a]
+                myvar2=myvar.capitalize()
+                if myvar or myvar2 in line:
+                    mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
+                    mystr2 = re.findall(r'\d{1,4}\s' + myvar2 +'\w*', line)
+
+                    for element in mystr:
+                        timelist.append(element)
+                    for element in mystr2:
+                        timelist.append(element)
+
+                    #if months are not written together with the numbers
+                    if len(mystr)==0 and len(mystr2)==0:
+                        mystr = re.findall(myvar +r'\w*', line)
+                        mystr = re.findall(myvar2 +r'\w*', line)
+                        for element in mystr:
+                            timelist.append(element)
+                        for element in mystr2:
+                            timelist.append(element)
+
+                a += 1
+
+            #mytime list
+            for a in range(0, len(mytime)):
+                myvar = mytime[a]
+                if myvar in line:
+                    mystr = re.findall(r'\d{1,4}\s' + myvar +'\w*', line)
+
+                    for element in mystr:
+                        timelist.append(element)
+                a += 1
+
+            if "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" in line:
+                mystr = re.findall(r'\d{4}[\'][td][ea]', line)
+                for element in mystr:
+                    timelist.append(element)
+
+                mystr = re.findall(r'\d\d[-\.]\d\d[-\.]\d{4}', line)
+                for element in mystr:
+                    timelist.append(element)
+
+                #SONRA BAK !!!
+                mystr = re.findall(r'\s\d{1,2}\s+[A-ZÇĞİÖŞÜ][a-zçğıöşü]*\s+\d{4}', line)
+                for element in mystr:
+                    timelist.append(element)
+                
+                mystr = re.findall(r'\s\d{1,2}\s+[a-zçğıöşü]*\s+\d{4}', line)
+                for element in mystr:
+                    timelist.append(element)
+
+                mystr = re.findall(r'[012]\d[:\.][012345]\d\s+', line)
+                for element in mystr:
+                    timelist.append(element)
+
+
+        #filters out any duplicates.
+        loclist = list(set(loclist))
+        orglist = list(set(orglist))
+        namelist = list(set(namelist))
+        timelist = list(set(timelist))
+
+        jres = {'org': "Organizations: ",
+                'org2': orglist,
+                'per': 'Persons: ',
+                'per2': namelist,
+                'loc': 'Locations:',
+                'loc2': loclist,
+                'time': "Time:",
+                'time2': timelist
+                }
+        return jsonify(jres)
+
+    else:    
+        result="This language is not supported for NER"
+        jres = {"org": result}
+        return jsonify(jres)
+
+
+
+@app.route('/api/btnRegex', methods=['POST'])
+def btnRegex():
     data = request.json['taburl']
     data2 = request.json['SentRegex']
     data2 = str(data2)
@@ -182,15 +379,21 @@ def fetch3():
     term = "<ul>"
     
     for i in result:
-        term+="<li>" + i +"</li>"
+        i=i.strip()
+        if len(i)>0:
+            term+="<li>" + i +"</li>"
     
     term += "</ul>"
+    
+    if term=="<ul></ul>":
+        term="Expression is not found"
+        
     jres = {'detail': term}
     return jsonify(jres)
 
 
-@app.route('/api/fetch4', methods=['POST'])
-def fetch4():
+@app.route('/api/btnCon', methods=['POST'])
+def btnCon():
     data = request.get_data()
     data2 = data.decode("ascii")
     html_content = requests.get(data2).text
@@ -211,8 +414,8 @@ def fetch4():
     return jsonify(jres)
 
 
-@app.route('/api/fetch5', methods=['POST'])
-def fetch5():
+@app.route('/api/btnWord', methods=['POST'])
+def btnWord():
     sword = ['acaba', 'ama', 'aslında', 'az', 'bazı', 'belki', 'biri', 'birkaç', 'birşey', 'biz', 'bu', 'çok', 'çünkü', 'da', 'daha', 'de', 'defa', 'diye', 'eğer', 'en', 'gibi', 'hem', 'hep', 'hepsi', 'her',
              'hiç', 'için', 'ile', 'ise', 'kez', 'ki', 'kim', 'mı', 'mu', 'mü', 'nasıl', 'ne', 'neden', 'nerde', 'nerede', 'nereye', 'niçin', 'niye', 'o', 'sanki', 'şey', 'siz', 'şu', 'tüm', 've', 'veya', 'ya', 'yani']
     sword2 = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down',
@@ -243,13 +446,10 @@ def fetch5():
     aa = 0
     for i in text:  # for every sentence
         sentence = i
-
         sentence = nltk.wordpunct_tokenize(sentence)
 
         mylist = []
         for a in sentence:
-            # if a in sword:
-            # mylist.append(a)
             if a in sword2:
                 mylist.append(a)
 
@@ -289,17 +489,17 @@ def fetch5():
     plt.imshow(mywc, interpolation="bilinear")
     plt.axis("off")
     plt.tight_layout(pad=0)
-
+  
     jres = {'detail': plt.show()}
-
     return jsonify(jres)
 
 
-@app.route('/api/fetch6', methods=['POST'])
-def fetch6():
+@app.route('/api/btnSum', methods=['POST'])
+def btnSum():
     data = request.json['taburl']
     data2 = request.json['SentNum']
-    data2 = int(data2) -1
+    data2 = int(data2) 
+
     if data2 < 1:
         data2 = 1
     html_content = requests.get(data).text
@@ -316,16 +516,33 @@ def fetch6():
         text += point
     
     text = text.replace(".",". ")
+
+    lang=detect(text)
     
-    model = Summarizer()
-    result = model(text, num_sentences=data2)
+    mydict = {"en": "english", "tr": "turkish", "de": "german", "es": "spanish", "fr": "french"}
+    lang2 = mydict.get(lang)
+    if(lang2 == None):
+        result = "This language is not supported for summary function."
+        jres = {'detail': result}
+        return jsonify(jres)
+    my_parser = PlaintextParser.from_string(text,Tokenizer(lang2))
+    lex_rank_summarizer = LexRankSummarizer()
+    lexrank_summary = lex_rank_summarizer(my_parser.document,sentences_count=data2)
+
+    # Printing the summary
+    result=""
+    for sentence in lexrank_summary:
+        sentence=str(sentence)
+        result += sentence
+
+    result = result.replace(".",". ")
 
     jres = {'detail': result}
     return jsonify(jres)
 
 
-@app.route('/api/fetch7', methods=['POST'])
-def fetch7():
+@app.route('/api/btnKeywor', methods=['POST'])
+def btnKeywor():
     data = request.get_data()
     data2 = data.decode("ascii")
     html_content = requests.get(data2).text
@@ -531,8 +748,8 @@ def fetch7():
             }
     return jsonify(jres)
 
-@app.route('/api/fetch8', methods=['POST'])
-def fetch8():
+@app.route('/api/btnKeyword', methods=['POST'])
+def btnKeyword():
     data = request.json['taburl']
     data2 = request.json['SentNum']
     data3 = request.json["case"]
@@ -585,14 +802,13 @@ def fetch8():
     term += "</ul>"
     reg = re.compile(myword)
     reg2 = re.compile(myword2)
-    values = re.findall(pattern=reg, string=term)
     sub_text = re.sub(pattern=reg, string=term, repl="<span style='color:blue;'>" + myword + "</span>")
     sub_text2 = re.sub(pattern=reg2, string=sub_text, repl="<span style='color:blue;'>" + myword2 + "</span>")
     jres = {'detail': sub_text2}
     return jsonify(jres)
 
-@app.route('/api/fetch9', methods=['POST'])
-def fetch9():
+@app.route('/api/btnOCR', methods=['POST'])
+def btnOCR():
     data = request.get_data()
     data2 = data.decode("ascii")
     html_content = requests.get(data2).text

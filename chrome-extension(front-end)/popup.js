@@ -1,13 +1,33 @@
 //Initialize jquery for extension load
 $(function(){
+	function clear(){
+		document.getElementById("txtResponse").innerHTML = " "
+		document.getElementById("txtResponse1").innerHTML = " "
+		document.getElementById("txtResponse2").innerHTML = " "
+		document.getElementById("txtResponse3").innerHTML = " "
+		document.getElementById("txtResponse4").innerHTML = " "
+		document.getElementById("txtResponse5").innerHTML = " "
+		document.getElementById("txtResponse6").innerHTML = " "
+		document.getElementById("txtResponse7").innerHTML = " "
+
+		document.getElementById("txtResponse").innerText = " "
+		document.getElementById("txtResponse1").innerText = " "
+		document.getElementById("txtResponse2").innerText = " "
+		document.getElementById("txtResponse3").innerText = " "
+		document.getElementById("txtResponse4").innerText = " "
+		document.getElementById("txtResponse5").innerText = " "
+		document.getElementById("txtResponse6").innerText = " "
+		document.getElementById("txtResponse7").innerText = " "
+
+	}
 	//Setup event listener on button
 	$("#btnTerm").click(function(e){
 
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			let taburl = tabs[0].url;
-			
+			clear();
     		$.ajax({
-        		url: "http://localhost:5000/api/fetch",
+        		url: "http://localhost:5000/api/btnTerm",
         		type: "post",
         		data: taburl,
         		contentType: "application/json",
@@ -15,12 +35,6 @@ $(function(){
            			console.log(response);
 					$("#txtResponse").text(response.detail).css({ 'color': "maroon"});
 					$("#txtResponse1").html(response.detail2).css({ 'color': 'black'});
-					$("#txtResponse2").text(" ")
-					$("#txtResponse3").text(" ")
-					$("#txtResponse4").text(" ")
-					$("#txtResponse5").text(" ")
-					$("#txtResponse6").text(" ")
-					$("#txtResponse7").text(" ")
         		}
     		});
 
@@ -30,117 +44,14 @@ $(function(){
 
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			let taburl = tabs[0].url;
-			
+			clear();
     		$.ajax({
-        		url: "http://localhost:5000/api/fetch2",
+        		url: "http://localhost:5000/api/btnNer",
         		type: "post",
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
            			console.log(response);
-					$("#txtResponse").text(response.org).css({ 'color': 'maroon'});
-					$("#txtResponse1").text(response.org2).css({ 'color': 'black'});
-					$("#txtResponse2").text(response.per).css({ 'color': 'maroon'});
-					$("#txtResponse3").text(response.per2).css({ 'color': 'black'});
-					$("#txtResponse4").text(response.loc).css({ 'color': 'maroon'});
-					$("#txtResponse5").text(response.loc2).css({ 'color': 'black'});
-        		}
-    		});
-  		});		
-	});
-
-	$("#btnRegex").click(function(e){
-		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-			SentRegex = prompt("Please enter a regular expression. Example: (?<=Start).+?(?=End)")
-			let taburl = tabs[0].url;
-    		dict2 = {taburl: taburl, SentRegex: SentRegex}
-    		$.ajax({
-        		url: "http://localhost:5000/api/fetch3",
-        		type: "post",
-        		data: JSON.stringify(dict2),
-        		contentType: "application/json",
-        		success: function (response) {
-           			console.log(response);
-					$("#txtResponse").text("");
-					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
-					$("#txtResponse2").text(response.detail2);
-					$("#txtResponse3").text(" ");
-					$("#txtResponse4").text(" ");
-					$("#txtResponse5").text(" ");
-        		}
-    		});
-  		});		
-	});
-
-	$("#btnCon").click(function(e){
-		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-			let taburl = tabs[0].url;
-			
-    		$.ajax({
-        		url: "http://localhost:5000/api/fetch4",
-        		type: "post",
-        		data: taburl,
-        		contentType: "application/json",
-        		success: function (response) {
-           			console.log(response);
-					$("#txtResponse").text(" ")
-					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
-					$("#txtResponse2").text(" ")
-					$("#txtResponse3").text(" ")
-					$("#txtResponse4").text(" ")
-					$("#txtResponse5").text(" ")
-					$("#txtResponse6").text(" ")
-					$("#txtResponse7").text(" ")
-        		}
-    		});
-  		});		
-	});
-	$("#btnWord").click(function(e){
-		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-			let taburl = tabs[0].url;
-			
-    		$.ajax({
-        		url: "http://localhost:5000/api/fetch5",
-        		type: "post",
-        		data: taburl,
-        		contentType: "application/json",
-        		success: function (response) {
-           			console.log(response);
-					$("#txtResponse").text(response.detail).css({ 'color': 'black'});
-        		}
-    		});
-  		});		
-	});
-	$("#btnSum").click(function(e){
-		SentNum = prompt("How many sentences do you want? (Please wait while it loads)")
-		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-			let taburl = tabs[0].url;
-			dict2 = {taburl: taburl, SentNum: SentNum}
-    		$.ajax({
-        		url: "http://localhost:5000/api/fetch6",
-        		type: "post",
-        		data: JSON.stringify(dict2),
-        		contentType: "application/json",
-        		success: function (response) {
-					$("#txtResponse").text(" ");
-					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
-					$("#txtResponse2").text(" ");
-					$("#txtResponse3").text(" ");
-					$("#txtResponse4").text(" ");
-					$("#txtResponse5").text(" ");
-        		}
-    		});
-  		});		
-	});
-	$("#btnTurkNer").click(function(e){
-		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-			let taburl = tabs[0].url;
-    		$.ajax({
-        		url: "http://localhost:5000/api/fetch7",
-        		type: "post",
-        		data: taburl,
-        		contentType: "application/json",
-        		success: function (response) {
 					$("#txtResponse").text(response.org).css({ 'color': 'maroon'});
 					$("#txtResponse1").text(response.org2).css({ 'color': 'black'});
 					$("#txtResponse2").text(response.per).css({ 'color': 'maroon'});
@@ -153,22 +64,88 @@ $(function(){
     		});
   		});		
 	});
+
+	$("#btnRegex").click(function(e){
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			SentRegex = prompt("Please enter a regular expression. Example: (?<=Start).+?(?=End)")
+			let taburl = tabs[0].url;
+    		dict2 = {taburl: taburl, SentRegex: SentRegex}
+			clear();
+    		$.ajax({
+        		url: "http://localhost:5000/api/btnRegex",
+        		type: "post",
+        		data: JSON.stringify(dict2),
+        		contentType: "application/json",
+        		success: function (response) {
+           			console.log(response);
+					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
+					$("#txtResponse2").text(response.detail2);
+        		}
+    		});
+  		});		
+	});
+
+	$("#btnCon").click(function(e){
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			let taburl = tabs[0].url;
+			clear();
+    		$.ajax({
+        		url: "http://localhost:5000/api/btnCon",
+        		type: "post",
+        		data: taburl,
+        		contentType: "application/json",
+        		success: function (response) {
+           			console.log(response);
+					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
+        		}
+    		});
+  		});		
+	});
+	$("#btnWord").click(function(e){
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			let taburl = tabs[0].url;
+			clear();
+    		$.ajax({
+        		url: "http://localhost:5000/api/btnWord",
+        		type: "post",
+        		data: taburl,
+        		contentType: "application/json",
+        		success: function (response) {
+           			console.log(response);
+					$("#txtResponse").text(response.detail).css({ 'color': 'black'});
+        		}
+    		});
+  		});		
+	});
+	$("#btnSum").click(function(e){
+		SentNum = prompt("How many sentences do you want?")
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			let taburl = tabs[0].url;
+			dict2 = {taburl: taburl, SentNum: SentNum}
+			clear();
+    		$.ajax({
+        		url: "http://localhost:5000/api/btnSum",
+        		type: "post",
+        		data: JSON.stringify(dict2),
+        		contentType: "application/json",
+        		success: function (response) {
+					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
+        		}
+    		});
+  		});		
+	});
 	 
 $("#btnKeyword").click(function (e) {
     var keyWord = document.getElementById("keyword");
-    //console.log(keyWord.value);
     SentNum = keyWord.value; // input searched keyword is taken
-    //console.log(SentNum.length);
-
     let isChecked = 1; // Default value is 1 since HTML shows it as selected in initial start.
-
-    $("#caseSens")
-      .on("change", function () {
+	
+    $("#caseSens").on("change", function () {
         this.value = this.checked ? 1 : 0;
         isChecked = this.value;
-      })
-      .change();
+      }).change();
 
+	 
     chrome.tabs.query({active: true, currentWindow: true}, tabs => {
       let taburl = tabs[0].url;
       document.getElementById("keyword").addEventListener("keypress", function (e) {
@@ -177,40 +154,48 @@ $("#btnKeyword").click(function (e) {
         if (e.key === "Enter") { // code for enter
           if (SentNum.length != 0) {
             dict2 = { taburl: taburl, SentNum: SentNum, case: isChecked };
+			clear();
             $.ajax({
-              url: "http://localhost:5000/api/fetch8",
+              url: "http://localhost:5000/api/btnKeyword",
               type: "post",
               data: JSON.stringify(dict2),
               contentType: "application/json",
               success: function (response) {
-                $("#txtResponse").text(" ");
                 $("#txtResponse1").html(response.detail).css({ color: "black" });
-                $("#txtResponse2").text(" ");
-                $("#txtResponse3").text(" ");
-                $("#txtResponse4").text(" ");
-                $("#txtResponse5").text(" ");
               },
             });
           }
         }
       });
+	  var keyWord = document.getElementById("keyword");
+	  SentNum = keyWord.value; // input searched keyword is taken
+		if (SentNum.length != 0) {
+		  dict2 = { taburl: taburl, SentNum: SentNum, case: isChecked };
+		  clear();
+		  $.ajax({
+			url: "http://localhost:5000/api/btnKeyword",
+			type: "post",
+			data: JSON.stringify(dict2),
+			contentType: "application/json",
+			success: function (response) {
+			  $("#txtResponse1").html(response.detail).css({ color: "black" });
+			},
+		  });
+		}
     });
   });
 	$("#btnOCR").click(function(e){
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			let taburl = tabs[0].url;
+			clear();
     		$.ajax({
-        		url: "http://localhost:5000/api/fetch9",
+        		url: "http://localhost:5000/api/btnOCR",
         		type: "post",
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
-					$("#txtResponse").text("")
 					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
 					$("#txtResponse2").text(response.detail2)
-					$("#txtResponse3").text(" ")
-					$("#txtResponse4").text(" ")
-					$("#txtResponse5").text(" ")
         		}
     		});
   		});		
