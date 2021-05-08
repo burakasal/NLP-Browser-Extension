@@ -19,6 +19,7 @@ $(function(){
 		document.getElementById("txtResponse6").innerText = " "
 		document.getElementById("txtResponse7").innerText = " "
 
+		document.getElementById("txtResponse").innerText = "Please wait while it loads."
 	}
 	//Setup event listener on button
 	$("#btnTerm").click(function(e){
@@ -32,7 +33,7 @@ $(function(){
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
-           			console.log(response);
+					$("#txtResponse").text(" ")
 					$("#txtResponse").text(response.detail).css({ 'color': "maroon"});
 					$("#txtResponse1").html(response.detail2).css({ 'color': 'black'});
         		}
@@ -51,7 +52,7 @@ $(function(){
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
-           			console.log(response);
+					$("#txtResponse").text(" ")   
 					$("#txtResponse").text(response.org).css({ 'color': 'maroon'});
 					$("#txtResponse1").text(response.org2).css({ 'color': 'black'});
 					$("#txtResponse2").text(response.per).css({ 'color': 'maroon'});
@@ -77,7 +78,7 @@ $(function(){
         		data: JSON.stringify(dict2),
         		contentType: "application/json",
         		success: function (response) {
-           			console.log(response);
+					$("#txtResponse").text(" ")   
 					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
 					$("#txtResponse2").text(response.detail2);
         		}
@@ -95,7 +96,7 @@ $(function(){
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
-           			console.log(response);
+					$("#txtResponse").text(" ")   
 					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
         		}
     		});
@@ -111,7 +112,7 @@ $(function(){
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
-           			console.log(response);
+					$("#txtResponse").text(" ")
 					$("#txtResponse").text(response.detail).css({ 'color': 'black'});
         		}
     		});
@@ -129,6 +130,7 @@ $(function(){
         		data: JSON.stringify(dict2),
         		contentType: "application/json",
         		success: function (response) {
+					$("#txtResponse").text(" ")
 					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
         		}
     		});
@@ -161,6 +163,7 @@ $("#btnKeyword").click(function (e) {
               data: JSON.stringify(dict2),
               contentType: "application/json",
               success: function (response) {
+				$("#txtResponse").text(" ")
                 $("#txtResponse1").html(response.detail).css({ color: "black" });
               },
             });
@@ -178,7 +181,8 @@ $("#btnKeyword").click(function (e) {
 			data: JSON.stringify(dict2),
 			contentType: "application/json",
 			success: function (response) {
-			  $("#txtResponse1").html(response.detail).css({ color: "black" });
+				$("#txtResponse").text(" ")
+			  	$("#txtResponse1").html(response.detail).css({ color: "black" });
 			},
 		  });
 		}
@@ -194,6 +198,7 @@ $("#btnKeyword").click(function (e) {
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
+					$("#txtResponse").text(" ")
 					$("#txtResponse1").html(response.detail).css({ 'color': 'black'});
 					$("#txtResponse2").text(response.detail2)
         		}
@@ -212,6 +217,7 @@ $("#btnKeyword").click(function (e) {
         		data: JSON.stringify(dict2),
         		contentType: "application/json",
         		success: function (response) {
+					$("#txtResponse").text(" ")
 					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
         		}
     		});
