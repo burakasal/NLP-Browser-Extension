@@ -22,7 +22,7 @@ chrome.tabs.query({
   var title = tab.title;
 
   chrome.i18n.detectLanguage(title, function (result) {
-    var outputLang = result.languages[i].language;
+    var outputLang = result.languages[0].language;
     
     var myDict = {
       "en": "English",

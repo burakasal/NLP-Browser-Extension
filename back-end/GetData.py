@@ -24,5 +24,5 @@ def getData(array):
         for points in mytext:
             point = str(points.text)
             text += point    
-    text = text.replace(".",". ")
+        text = text.replace(".",". ")    
     return text     

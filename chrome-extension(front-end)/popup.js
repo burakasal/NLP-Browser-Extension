@@ -200,5 +200,22 @@ $("#btnKeyword").click(function (e) {
     		});
   		});		
 	});
+	$("#btnBertSum").click(function(e){
+		SentNum = prompt("How many sentences do you want?")
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			let taburl = tabs[0].url;
+			dict2 = {taburl: taburl, SentNum: SentNum}
+			clear();
+    		$.ajax({
+        		url: "http://localhost:5000/api/btnBertSum",
+        		type: "post",
+        		data: JSON.stringify(dict2),
+        		contentType: "application/json",
+        		success: function (response) {
+					$("#txtResponse1").text(response.detail).css({ 'color': 'black'});
+        		}
+    		});
+  		});		
+	});
 });
 
