@@ -8,8 +8,7 @@ def regex(text, data2):
     if len(result)==0:
         mysent="Expression is not found"
         result.append(mysent)
-        jres = {'detail2': result}
-        return jsonify(jres)
+        return result
 
     term = "<ul>"
     
