@@ -175,4 +175,4 @@ def nertr(text):
         namelist = list(set(namelist))
         timelist = list(set(timelist))
 
-        return loclist, orglist ,namelist, timelist
+        return orglist ,namelist, loclist, timelist

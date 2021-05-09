@@ -22,4 +22,4 @@ def nerEng(text):
     TaggedOrganizations = ', '.join(OrganizationList)
     TaggedPersons = ', '.join(PersonList)
     TaggedGeographicalEntities = ', '.join(GPEList)
-    return(TaggedOrganizations, TaggedPersons, TaggedGeographicalEntities)
+    return TaggedOrganizations, TaggedPersons, TaggedGeographicalEntities
