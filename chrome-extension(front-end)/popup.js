@@ -23,7 +23,7 @@ $(function(){
 	}
 	//Setup event listener on button
 	$("#btnTerm").click(function(e){
-
+		
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			let taburl = tabs[0].url;
 			clear();

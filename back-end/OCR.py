@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import pytesseract
 import io
+import re
 
 def ocr():
     data = request.get_data()
@@ -15,17 +16,21 @@ def ocr():
     image_list = []
     for image in images:
         a = str(image)
-        if "http" in a:
-            image_list.append(image["src"])
 
+        if ".png" in a or ".svg" in a or ".jpg" in a:
+            image_list.append(image["src"])
+            
     term = "<ul>"
     
     for i in image_list:
         try:
+            if "http" not in i:
+                i="http:" +i
             response = requests.get(i)
             img = Image.open(io.BytesIO(response.content))
             a = pytesseract.image_to_string(img)
             if a.strip():
+                #a=re.sub(r'[^A-Za-z0-9]', "", a)
                 term+="<li>"+ a+ "</li>"
         except:
             continue       
