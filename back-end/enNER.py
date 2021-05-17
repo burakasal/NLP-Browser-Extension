@@ -1,5 +1,4 @@
 import spacy
-import nltk
 
 def nerEng(text):
     nlp = spacy.load("en_core_web_sm")

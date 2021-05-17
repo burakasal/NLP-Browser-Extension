@@ -28,7 +28,7 @@ def wordCloud(text):
 
         mylist = []
         for a in sentence:
-            if a in sword2:
+            if a in sword:
                 mylist.append(a)
 
         for u in mylist:
