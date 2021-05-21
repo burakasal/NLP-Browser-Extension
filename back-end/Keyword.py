@@ -4,8 +4,7 @@ import re
 
 
 
-def keyword(text,data2,data3):
-    #text is the webpage content, data2 is the keyword input, data3 is the case sensitivity input
+def keyword(text,data2,data3): #text is the webpage content, data2 is the keyword input, data3 is the case sensitivity input
     data2 = str(data2)
    
     if data3 == "0": #Case sensitive, consider both lowered and capitalized versions of the word
@@ -15,6 +14,7 @@ def keyword(text,data2,data3):
         myword = data2
         myword2 = data2
     
+    
     p = text
     p=p.replace('.', '. ')
    
@@ -23,7 +23,7 @@ def keyword(text,data2,data3):
     term = "<ul>" #these tags are added to represent the outcome as bulletpoints in the output box.
     
     for i in text:  #i=sentences
-        b = i # b stores the original value of the sentences ( to return at the end)
+        b = i # b stores the original value of the sentences (to return at the end)
         i = re.sub("[^a-zA-Z0-9\sÇĞİÖŞÜçğıöşü]", " ",i) #processing the text 
         i = i.split()
         for w in i:

@@ -4,15 +4,15 @@ from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
 
-def lexRankSummarizer(text, data2):
+def lexRankSummarizer(text, data2): #data2 represents the sentence number input
     data2 = int(data2) 
     if data2 < 1:
         data2 = 1
     
     lang=detect(text)
-    mydict = {"en": "english", "tr": "turkish", "de": "german", "es": "spanish", "fr": "french"}
+    mydict = {"en": "english", "tr": "turkish", "de": "german", "es": "spanish", "fr": "french"} #this function only works for these languages, more languages can be added to the dictionary
     lang2 = mydict.get(lang)
-    if(lang2 == None):
+    if(lang2 == None): #if the detected language is not in the dictionary
         result = "This language is not supported for summary function."
         return result
     my_parser = PlaintextParser.from_string(text,Tokenizer(lang2))
