@@ -2,6 +2,7 @@ from nltk import tokenize
 from sumy.nlp.tokenizers import Tokenizer
 import re
 import pandas as pd
+from LexiconCheck import lexiconCheck
 
 def nertr(text):
 
@@ -13,6 +14,30 @@ def nertr(text):
                 "Müsteşarlığı", "Parti", "A.Ş.", "şirketi", "Örgütü","Komutanlığı","Kuvvetleri","Operasyonu","Komitesi","Forumu", "Cumhuriyeti","Töreni","Komisyonu","Konseyi", "gazetesi","dergisi",
                 "Birimi", "Danıştay","Yargıtay","Sayıştay", "Sekreterliği", "Mahkemesi","Teşkilatı","Bank","Ajansı","Kooperasyonu","Organizasyonu","Vakfı","Televizyonu",
                 "savcılığı","Savcılığı","Başsavcılığı","kardeşi","Konferansı","kanalı", "Kanal'", "cemaati"]
+
+
+        myname = ["Abi", "Ağabey", "Amca", "Dayı",
+                "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
+
+        myname2 = ["Bakan", "Vali", "Müftü", "Kadı", "Kral", "Kraliçe", "Prens", "Prenses","CEO'su","yetkilisi","Muhabiri", "Editörü",
+        "İmam", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktor", "Başbakanı", "Başkanvekili","nişanlısı", "arkadaşı olan","üyesi",
+        "Hekim", "Avukat", "Öğretmen", "Profesör", "Doçent", "Başkan", "Yardımcısı","Muhabiri","Prof.", "Dr.", "başkanı", "Büyükelçisi", "Sözcüsü","danışmanı",
+        "Lideri", "lideri", "yönetmen","Düşesi","sunucusu","ağabeyi","yöneticisi","Sekreteri","siyasetçi","öğretmen"] 
+
+        myloc = ["Dağı", "Köprüsü", "Mezarı", "Saray", "Şehri", "Ülkesi", "Deresi", "Çayı", "Gölü","Çölü","anakarası","kıtası"
+                "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı", "Meydanı", "Denizi", "Körfezi", "Kenti", "Tapınağı", "Kilisesi", "Otogarı",
+                "Merkezi", "Okyanusu", "Kütüphanesi", "İstasyonu", "Kayalıkları", "Limanı", "Adası","adası", "Koyu", "Yaylası", "Tepesi", "Çayırı", "Yolu", "Kalesi", "Müzesi",
+                "Boğazı", "Ocağı", "Koğuşu", "Stadyum", "Kortu", "Sahası", "Otel", "Hotel", "Pansiyon", "Mağaza", "Vadisi", "Geçidi", "İlçesi", "Beldesi", "ilçesi","bölgesi","kenti","başkenti"]
+        loclist = []
+        loclist=lexiconCheck(text, loclist, "sehir-ulke.txt")
+
+        mytime=["yıl", "sene", "yüzyıl", "hafta", "gün", "saat", "dakika", "saniye", "ay"]
+        aylar=["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
+
+
+
+
+
         orglist = []
         for line in text:  # each sentence
             for a in range(0, len(myorg)):
@@ -39,15 +64,6 @@ def nertr(text):
                     orglist.append(basınf[ele])
 
 
-
-        myname = ["Abi", "Ağabey", "Amca", "Dayı",
-                "Bey", "Bay", "Hanım", "Bayan", "Hoca"]
-
-        myname2 = ["Bakan", "Vali", "Müftü", "Kadı", "Kral", "Kraliçe", "Prens", "Prenses","CEO'su","yetkilisi","Muhabiri", "Editörü",
-        "İmam", "Cumhurbaşkanı", "Sayın", "Sevgili", "Kıymetli", "Değerli", "Doktor", "Başbakanı", "Başkanvekili","nişanlısı", "arkadaşı olan","üyesi",
-        "Hekim", "Avukat", "Öğretmen", "Profesör", "Doçent", "Başkan", "Yardımcısı","Muhabiri","Prof.", "Dr.", "başkanı", "Büyükelçisi", "Sözcüsü","danışmanı",
-        "Lideri", "lideri", "yönetmen","Düşesi","sunucusu","ağabeyi","yöneticisi","Sekreteri","siyasetçi","öğretmen"]          
-
         namelist = []
         for line in text:  # each sentence
             for a in range(0, len(myname)):
@@ -72,28 +88,7 @@ def nertr(text):
                         namelist.append(element)
                 a += 1
 
-        myloc = ["Dağı", "Köprüsü", "Mezarı", "Saray", "Şehri", "Ülkesi", "Deresi", "Çayı", "Gölü","Çölü","anakarası","kıtası"
-                "Otoyolu", "Köyü", "Kasabası", "Mahallesi", "Caddesi", "Dairesi", "Meydanı", "Rezidansı", "Meydanı", "Denizi", "Körfezi", "Kenti", "Tapınağı", "Kilisesi", "Otogarı",
-                "Merkezi", "Okyanusu", "Kütüphanesi", "İstasyonu", "Kayalıkları", "Limanı", "Adası","adası", "Koyu", "Yaylası", "Tepesi", "Çayırı", "Yolu", "Kalesi", "Müzesi",
-                "Boğazı", "Ocağı", "Koğuşu", "Stadyum", "Kortu", "Sahası", "Otel", "Hotel", "Pansiyon", "Mağaza", "Vadisi", "Geçidi", "İlçesi", "Beldesi", "ilçesi","bölgesi","kenti","başkenti"]
-        loclist = []
 
-        loc_file = open("Şehirler.txt", "r", encoding="utf8")
-        locf=[]
-        for l in loc_file:
-            if len(l)>1:
-                locf.append(l.strip())
-        for line in text:
-            for ele in range(0, len(locf)):
-                if locf[ele] in line:
-                    loclist.append(locf[ele])
-        #ÜLKELER
-        df1 = pd.read_excel('Ulkeler.xlsx')
-        ülkeler = df1['ulkeler'].tolist()
-        for line in text:
-            for ü in range(0, len(ülkeler)):
-                if ülkeler[ü] in  line:
-                    loclist.append(ülkeler[ü])
 
 
         for line in text:  # each sentence
@@ -107,8 +102,7 @@ def nertr(text):
                         loclist.append(element)
                 a += 1
 
-        mytime=["yıl", "sene", "yüzyıl", "hafta", "gün", "saat", "dakika", "saniye", "ay"]
-        aylar=["ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık"]
+
         timelist = []
         for line in text:
 
