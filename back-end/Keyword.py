@@ -3,7 +3,6 @@ from nltk import tokenize
 import re
 
 
-
 def keyword(text,data2,data3): #text is the webpage content, data2 is the keyword input, data3 is the case sensitivity input
     data2 = str(data2)
    
@@ -14,7 +13,16 @@ def keyword(text,data2,data3): #text is the webpage content, data2 is the keywor
         myword = data2
         myword2 = data2
     
-    
+    myword = re.sub("[^a-zA-Z0-9\sÇĞİÖŞÜçğıöşü]", "",myword)
+    myword2 = re.sub("[^a-zA-Z0-9\sÇĞİÖŞÜçğıöşü]", "",myword2)
+
+    if len(myword)==0:
+        result="The keyword input is not valid"
+        return result
+        
+    myword= " " + myword
+    myword2= " " + myword2
+
     p = text
     p=p.replace('.', '. ')
    
@@ -24,23 +32,30 @@ def keyword(text,data2,data3): #text is the webpage content, data2 is the keywor
     
     for i in text:  #i=sentences
         b = i # b stores the original value of the sentences (to return at the end)
-        i = re.sub("[^a-zA-Z0-9\sÇĞİÖŞÜçğıöşü]", " ",i) #processing the text 
         i = i.split()
+        ind=0
         for w in i:
-            if w==myword:
-                term+="<li>" + b +"</li>"     
-            elif w==myword2:
-                term+="<li>" + b +"</li>"
+            w=w.strip()
+            w=" "+ w
+            mystr = re.findall(myword + r'\w{0,1}\b', w) #this allows last letter to vary, in case there is a punctuation mark
+            mystr2 = re.findall(myword2 + r'\w{0,1}\b', w)
+
+            if mystr:
+                mywordn="<span style='color:blue;'>" + w + "</span>"
+                i[ind]=mywordn
+                i=" ".join(i)
+                term+="<li>" + i +"</li>" 
+
+            elif mystr2:
+                myword2n="<span style='color:blue;'>" + w + "</span>"
+                i[ind]=myword2n
+                i=" ".join(i)
+                term+="<li>" + i +"</li>"
+            ind+=1
            
     if term == "<ul>": #no word is detected in sentences
         term = "There is no such word."
     
     term += "</ul>"
 
-    reg = re.compile(myword)
-    reg2 = re.compile(myword2)
-
-    sub_text = re.sub(pattern=reg, string=term, repl="<span style='color:blue;'>" + myword + "</span>") #coloring the keyword to blue
-    sub_text2 = re.sub(pattern=reg2, string=sub_text, repl="<span style='color:blue;'>" + myword2 + "</span>") 
-
-    return sub_text2
+    return term

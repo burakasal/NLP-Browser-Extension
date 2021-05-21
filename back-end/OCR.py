@@ -29,8 +29,8 @@ def ocr():
             response = requests.get(i)
             img = Image.open(io.BytesIO(response.content))
             a = pytesseract.image_to_string(img)
+            a=re.sub(r'[^A-Za-z0-9]', "", a)
             if a.strip():
-                a=re.sub(r'[^A-Za-z0-9]', "", a)
                 term+="<li>"+ a+ "</li>"
         except:
             continue       

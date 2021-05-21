@@ -19,6 +19,18 @@ if __name__ == '__main__':
     app.debug = True
     app.run()
 
+@app.route('/api/btnlangDetect', methods=['POST'])
+def btnlangDetect():
+    text=getData(False)
+    lang = detect(text)
+    mydict = {"en": "English", "tr": "Turkish", "de": "German", "es": "Spanish", "fr": "French"}
+    lang2 = mydict.get(lang)
+    if(lang2 == None):
+        lang2 = lang
+
+    jres = {'language':lang2}
+    return jsonify(jres)
+
 @app.route('/api/btnTerm', methods=['POST'])
 def btnTerm():
     text=getData(True)

@@ -4,47 +4,27 @@ if (el) {
 }
 
 function myFunction() {
-  window.location.href = "nlp.html";
+    window.location.href = "nlp.html";
+
 }
 
-chrome.tabs.query(
-  {
-    active: true,
-    currentWindow: true,
-  },
-  function (tabs) {
-    var tab = tabs[0];
-    var title = tab.title;
-
-    chrome.i18n.detectLanguage(title, function (result) {
-      var outputLang = '';
-      for(i = 0; i < result.languages.length; i++) {
-        outputLang += result.languages[i].language + "";
-      }
-      
-      var myDict = {
-        en: "English",
-        tr: "Turkish",
-        de: "German",
-        es: "Spanish",
-        fr: "French",
-      };
-
-      var outputLang2 = "";
-      var resultdef = myDict[outputLang];
-      if (typeof resultdef !== "undefined") {
-        outputLang2 = resultdef;
-      } else {
-        outputLang2 = outputLang;
-      }
-
-      document.getElementById("language").innerHTML = outputLang2 + "<br>" + "\nReliability: " + result.isReliable;
-      if (outputLang2 !== "English" && outputLang2 !== "Turkish") {
-        document.getElementById("btnNer").style.display = "none";
-      }
+chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+  let taburl = tabs[0].url;
+    $.ajax({
+        url: "http://localhost:5000/api/btnlangDetect",
+        type: "post",
+        data: taburl,
+        contentType: "application/json",
+        success: function (response) {
+          document.getElementById("language").innerHTML = response.language
+          
+          if (response.language !== "English" && response.language !== "Turkish") {
+            document.getElementById("btnNer").style.display = "none";
+          }
+        }
     });
-  }
-);
+  })
+
 
 window.onload = function () {
   document.getElementById("btnKeyword").addEventListener("click", function () {
