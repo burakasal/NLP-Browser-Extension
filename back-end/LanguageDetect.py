@@ -1,5 +1,6 @@
 from langdetect import detect_langs
-
+from langdetect import DetectorFactory
+DetectorFactory.seed = 0
 def languagedetect(text):
     try:
         lang_list=detect_langs(text)
@@ -23,7 +24,8 @@ def languagedetect(text):
           langs[i]=lang2
 
     result=""
+    
     for i in range(0, len(langs)):
-        result += "Page language is '" + str(langs[i]) + "' with reliability " + str(probs[i]) + " " + "<br>"
+        result += "Page language is '" + str(langs[i]) + "' with " + probs[i] + " reliability score"  + "<br>"
 
     return result, res

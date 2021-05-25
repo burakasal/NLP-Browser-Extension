@@ -32,7 +32,8 @@ def btnlangDetect():
 @app.route('/api/btnTerm', methods=['POST'])
 def btnTerm():
     text=getData(True)
-    term = termWeigthing(text)
+    lang = detect(getData(False))
+    term = termWeigthing(text, lang)
     jres = {'detail': 'Descriptive Terms: ',
             'detail2': term
             }
@@ -96,9 +97,7 @@ def btnCon():
 def btnWord():
     text=getData(True)
     plt=wordCloud(text)
-    my_path = os.path.abspath(__file__) 
    
-    plt.savefig(my_path)
     jres = {'detail': plt.show()}
     return jsonify(jres)
 

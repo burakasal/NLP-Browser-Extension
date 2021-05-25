@@ -5,7 +5,12 @@ from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
 
 def lexRankSummarizer(text, data2): #data2 represents the sentence number input
-    data2 = int(data2) 
+    try:
+        data2 = int(data2) 
+    except:
+        data2 = data2
+        return "The input is not valid"
+
     if data2 < 1:
         data2 = 1
     
@@ -13,8 +18,8 @@ def lexRankSummarizer(text, data2): #data2 represents the sentence number input
     mydict = {"en": "english", "tr": "turkish", "de": "german", "es": "spanish", "fr": "french"} #this function only works for these languages, more languages can be added to the dictionary
     lang2 = mydict.get(lang)
     if(lang2 == None): #if the detected language is not in the dictionary
-        result = "This language is not supported for summary function."
-        return result
+        return "This language is not supported for summary function."
+        
     my_parser = PlaintextParser.from_string(text,Tokenizer(lang2))
     lex_rank_summarizer = LexRankSummarizer()
     lexrank_summary = lex_rank_summarizer(my_parser.document,sentences_count=data2)

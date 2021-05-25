@@ -1,5 +1,4 @@
 
-
 def lexiconCheck(text, list, mytxt):
 
         mfile = open(mytxt, "r", encoding="utf8")
