@@ -2,6 +2,7 @@ import flask
 from flask import request, jsonify
 import collections
 from langdetect import detect
+import os
 from GetData import getData
 from TermWeighting import termWeigthing
 from enNER import nerEng
@@ -13,6 +14,7 @@ from Keyword import keyword
 from OCR import ocr
 from LexrankSummarizer import lexRankSummarizer
 from BertSummarizer import bertSummarizer
+from LanguageDetect import languagedetect
 
 app = flask.Flask(__name__)
 if __name__ == '__main__':
@@ -22,13 +24,9 @@ if __name__ == '__main__':
 @app.route('/api/btnlangDetect', methods=['POST'])
 def btnlangDetect():
     text=getData(False)
-    lang = detect(text)
-    mydict = {"en": "English", "tr": "Turkish", "de": "German", "es": "Spanish", "fr": "French"}
-    lang2 = mydict.get(lang)
-    if(lang2 == None):
-        lang2 = lang
-
-    jres = {'language':lang2}
+    result, lang = languagedetect(text) 
+    jres = {'language': result,
+            'language2': lang}
     return jsonify(jres)
 
 @app.route('/api/btnTerm', methods=['POST'])
@@ -98,7 +96,9 @@ def btnCon():
 def btnWord():
     text=getData(True)
     plt=wordCloud(text)
-  
+    my_path = os.path.abspath(__file__) 
+   
+    plt.savefig(my_path)
     jres = {'detail': plt.show()}
     return jsonify(jres)
 

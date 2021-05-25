@@ -5,7 +5,6 @@ if (el) {
 
 function myFunction() {
     window.location.href = "nlp.html";
-
 }
 
 chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
@@ -18,7 +17,7 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         success: function (response) {
           document.getElementById("language").innerHTML = response.language
           
-          if (response.language !== "English" && response.language !== "Turkish") {
+          if (response.language2 !== "en" && response.language2 !== "tr") {
             document.getElementById("btnNer").style.display = "none";
           }
         }
