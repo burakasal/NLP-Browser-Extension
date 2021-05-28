@@ -1,5 +1,7 @@
 //Initialize jquery for extension load
 $(function(){
+	//Before executing any operation, this function is called in order to
+	//clear out any remnants from output.
 	function clear(){
 		document.getElementById("txtResponse").innerHTML = " "
 		document.getElementById("txtResponse1").innerHTML = " "
@@ -21,18 +23,21 @@ $(function(){
 
 		document.getElementById("txtResponse").innerText = "Please wait while it loads."
 	}
+
 	//Setup event listener on button
 	$("#btnTerm").click(function(e){
-		
+		//Tab url is received 
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			let taburl = tabs[0].url;
 			clear();
+			//Ajax request is sent here.
     		$.ajax({
         		url: "http://localhost:5000/api/btnTerm",
         		type: "post",
         		data: taburl,
         		contentType: "application/json",
         		success: function (response) {
+					//In the event of a successful response, outputs are shown between html tags.
 					$("#txtResponse").text(" ")
 					$("#txtResponse").text(response.detail).css({ 'color': "maroon"});
 					$("#txtResponse1").html(response.detail2).css({ 'color': 'black'});
@@ -68,6 +73,7 @@ $(function(){
 
 	$("#btnRegex").click(function(e){
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+			//Input is taken from the user.
 			SentRegex = prompt("Please enter a regular expression. Example: (?<=Start).+?(?=End)")
 			let taburl = tabs[0].url;
     		dict2 = {taburl: taburl, SentRegex: SentRegex}
@@ -138,10 +144,14 @@ $(function(){
 	});
 	 
 $("#btnKeyword").click(function (e) {
+	//keyword is targeted in order to get keyword input.
     var keyWord = document.getElementById("keyword");
-    SentNum = keyWord.value; // input searched keyword is taken
-    let isChecked = 1; // Default value is 1 since HTML shows it as selected in initial start.
+	// input searched keyword is taken
+    SentNum = keyWord.value;
+	// Default value is 1 since HTML shows it as selected in initial start. 
+    let isChecked = 1; 
 	
+	//isChecked becomes 1 when the checkbox is selected, otherwise it becomes 0. 
     $("#caseSens").on("change", function () {
         this.value = this.checked ? 1 : 0;
         isChecked = this.value;
@@ -152,9 +162,12 @@ $("#btnKeyword").click(function (e) {
       let taburl = tabs[0].url;
       document.getElementById("keyword").addEventListener("keypress", function (e) {
         var keyWord = document.getElementById("keyword");
-        SentNum = keyWord.value; // input searched keyword is taken
-        if (e.key === "Enter") { // code for enter
-          if (SentNum.length != 0) {
+		// input searched keyword is taken
+        SentNum = keyWord.value; 
+		// code for enter
+        if (e.key === "Enter") {
+          if (SentNum.length != 0) //If the user has not entered any input, don't send ajax request.  
+		  {
             dict2 = { taburl: taburl, SentNum: SentNum, case: isChecked };
 			clear();
             $.ajax({
@@ -170,6 +183,7 @@ $("#btnKeyword").click(function (e) {
           }
         }
       });
+	  //Code for keyword button click
 	  var keyWord = document.getElementById("keyword");
 	  SentNum = keyWord.value; // input searched keyword is taken
 		if (SentNum.length != 0) {
