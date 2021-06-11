@@ -74,7 +74,7 @@ $(function(){
 	$("#btnRegex").click(function(e){
 		chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 			//Input is taken from the user.
-			SentRegex = prompt("Please enter a regular expression. Example: (?<=Start).+?(?=End)")
+			SentRegex = prompt("Please enter a regular expression. \n Example 1: (?<=StartWord).+?(?=EndWord) \n Example 2: [A-Z][a-z]+")
 			let taburl = tabs[0].url;
     		dict2 = {taburl: taburl, SentRegex: SentRegex}
 			clear();

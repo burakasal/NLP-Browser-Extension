@@ -23,6 +23,10 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
           if (response.language2 !== "en" && response.language2 !== "tr") {
             document.getElementById("btnNer").style.display = "none";
           }
+          //If the language is not English, hide the Summarizer button.
+          if(response.language2 !== "en"){
+            document.getElementById("btnBertSum").style.display = "none";
+          }
         }
     });
   })
